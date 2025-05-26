@@ -1,5 +1,9 @@
 # Simulation files
-
+*.vtu
+*.pvtu
+*.csv
+*.e
+PF_Dissolution.i
 
 # Folders with images
 Tengattini2023
