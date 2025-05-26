@@ -1,6 +1,13 @@
 # Simulation files
 
 
-# Folders created during the simulation
+# Folders with images
 Tengattini2023
 
+# Folders created during the simulation
+output
+data
+e
+i
+vtk
+csv
