@@ -9,6 +9,7 @@ PF_Dissolution.i
 Tengattini2023
 
 # Folders created during the simulation
+__pycache__
 output
 data
 e
