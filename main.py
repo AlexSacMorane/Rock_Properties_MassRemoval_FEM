@@ -84,7 +84,7 @@ i_z_max = 650
 data_extracted = np.zeros((i_x_max-i_x_min+1, i_y_max-i_y_min+1, i_z_max-i_z_min+1))
 # iterate on the slices
 images = []
-for i_z in range(i_z_min, i_z_max):
+for i_z in range(i_z_min, i_z_max+1):
     # read the image
     with Image.open('Tengattini2023/CGB29AT'+ index_to_str_4(i_z) +'.png') as im:
         # convert PIL into numpy
