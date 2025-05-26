@@ -1,19 +1,19 @@
 [Mesh]
   type = GeneratedMesh
-  dim = 2
+  dim = 3
   nx =
   ny =
-  nz = 0
+  nz = 
   xmin =
   xmax =
   ymin =
   ymax =
+  zmin =
+  zmax =
   elem_type = QUAD4
 []
 
 [Variables]
-  active = 'matter'
-
   [./matter]
     order = FIRST
     family = LAGRANGE
@@ -47,9 +47,9 @@
 
 [BCs]
   [./Periodic]
-    [./per_matter_xy]
+    [./per_matter_xyz]
       variable = matter
-      auto_direction = 'x y'
+      auto_direction = 'x y z'
     [../]
   [../]
 []
