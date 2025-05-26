@@ -10,7 +10,7 @@
   ymax =
   zmin =
   zmax =
-  elem_type = QUAD4
+  elem_type = HEX8
 []
 
 [Variables]
