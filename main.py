@@ -25,13 +25,29 @@ def create_folder(name):
 
 #-------------------------------------------------------------------------------
 
-def index_to_str(j):
+def index_to_str_3(j):
   '''
   An integer is converted to a float with 3 components
   '''
   if j < 10:
       j_str = '00'+str(j)
   elif 10 <= j and j < 100:
+      j_str = '0'+str(j)
+  else :
+      j_str = str(j)
+  return j_str
+
+#-------------------------------------------------------------------------------
+
+def index_to_str_4(j):
+  '''
+  An integer is converted to a float with 4 components
+  '''
+  if j < 10:
+      j_str = '000'+str(j)
+  elif 10 <= j and j < 100:
+      j_str = '00'+str(j)
+  elif 100 <= j and j < 1000:
       j_str = '0'+str(j)
   else :
       j_str = str(j)
@@ -52,54 +68,38 @@ create_folder('csv')
 # Read data
 #-------------------------------------------------------------------------------
 
-# folder to read
-namefolder = 'Tengattini2023'
-# read the name of the files located in the folder and sort them
-L_files = os.listdir(namefolder)
-L_files.sort()
-
-# read the image
-with Image.open(namefolder+'/'+L_files[int(len(L_files)/2)]) as im:
-    # user print
-    #print('Name :', L_files[int(len(L_files)/2)])
-    # convert PIL into numpy
-    data = np.array(im)
-
 # Image are 1341 x 1200 x 1200
-#print(data.shape)
-
 # definition of the extraction zone
-#i_x_min = 500
-#i_x_max = 960
+i_x_min = 500
+i_x_max = 600
 i_y_min = 500
-i_y_max = 900
-i_z_min = 300
-i_z_max = 700
-
-# plot image and extraction zone
-fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
-ax1.imshow(data, extent=(0, 1200, 0, 1200))
-ax1.plot([i_y_min, i_y_max, i_y_max, i_y_min, i_y_min], [i_z_min, i_z_min, i_z_max, i_z_max, i_z_min], color='r', linewidth=6)
-ax1.set_xlabel('axis y (pixels)')
-ax1.set_ylabel('axis z (pixels)')
-fig.tight_layout()
-fig.savefig('output/data.png')
-plt.close(fig)
+i_y_max = 600
+i_z_min = 550
+i_z_max = 600
 
 # extract data
-data_extracted = np.zeros((i_y_max-i_y_min+1, i_z_max-i_z_min+1))
-for i_y in range(i_y_min, i_y_max+1):
-    for i_z in range(i_z_min, i_z_max+1):
-        data_extracted[i_y-i_y_min, -1-(i_z-i_z_min)] = data[i_y, -1-i_z].copy() 
+data_extracted = np.zeros((i_x_max-i_x_min+1, i_y_max-i_y_min+1, i_z_max-i_z_min+1))
+# iterate on the slices
+for i_z in range(i_z_min, i_z_max):
+    # read the image
+    with Image.open('Tengattini2023/CGB29AT'+ index_to_str_4(i_z_str) +'.png') as im:
+        # convert PIL into numpy
+        data = np.array(im)
+        # extract data
+        for i_y in range(i_y_min, i_y_max+1):
+            for i_x in range(i_x_min, i_x_max+1):
+                data_extracted[i_x-i_x_min, i_y-i_y_min, i_z] = data[i_x, i_y].copy() 
 
-# plot data extracted
-fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
-ax1.imshow(data_extracted, extent=(0, i_y_max-i_y_min+1, 0, i_z_max-i_z_min+1))
-ax1.set_xlabel('axis y (pixels)')
-ax1.set_ylabel('axis z (pixels)')
-fig.tight_layout()
-fig.savefig('output/data_extracted.png')
-plt.close(fig)
+        # plot data extracted
+        fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
+        ax1.imshow(data_extracted, extent=(0, i_y_max-i_y_min+1, 0, i_z_max-i_z_min+1))
+        ax1.set_xlabel('axis y (pixels)')
+        ax1.set_ylabel('axis z (pixels)')
+        fig.tight_layout()
+        fig.savefig('output/data_extracted_'+index_to_str_3(i_z-i_z_min)+'.png')
+        plt.close(fig)
+
+raise ValueError('stop')
 
 # compute the histogram of the pixel values
 L_p, L_values = np.histogram(data_extracted, bins=np.arange(256))
