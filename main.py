@@ -300,8 +300,7 @@ for i_x in range(data_grain.shape[0]):
     for i_y in range(data_grain.shape[1]):
         # iterate on z  
         for i_z in range(data_grain.shape[2]):
-            if data_grain[i_x, i_y, i_z] == 1 or data_cement[i_x, i_y, i_z] == 1:
-                ed_map[i_x, i_y, i_z] = ed_pf
+            ed_map[i_x, i_y, i_z] = ed_pf
 
 #-------------------------------------------------------------------------------
 # Write ed
