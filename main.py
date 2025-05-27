@@ -420,7 +420,7 @@ raise ValueError('stop')
 # Read csv output 
 #-------------------------------------------------------------------------------
 
-#Read_PF_csv(name_template, crit_res_pf)
+#Read_PF_csv(crit_res_pf)
 
 #-------------------------------------------------------------------------------
 # Define parameters loadings
@@ -465,7 +465,7 @@ for iteration in range(last_j+1):
     print(iteration+1,'/', last_j)
 
     # Read vtk output 
-    L_L_i_XYZ_not_used, L_XYZ_used, M_grain, M_cement = Read_PF_vtk(name_template, index_to_str_3(iteration), L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_matter, y_L, z_L, data_grain, data_cement)
+    L_L_i_XYZ_not_used, L_XYZ_used, M_grain, M_cement = Read_PF_vtk(index_to_str_3(iteration), L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_matter, x_L, y_L, z_L, data_grain, data_cement)
 
     # Prepare the MOOSE simulation
     create_folder('data')
@@ -477,7 +477,7 @@ for iteration in range(last_j+1):
     Generate_png(M_grain, M_cement)
 
     # Write the compression .i file
-    Write_compression_i(y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+    Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
     # Run fem MOOSE simulation
     os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i FEM_Loading_Compression.i')
     # Read the csv output

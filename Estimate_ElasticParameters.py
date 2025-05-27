@@ -18,21 +18,22 @@ def Generate_png(M_grain, M_cement):
     Generate a png file (input of the FEM Moose simulation) from the numpy arrays.
     '''
     # initialize the png
-    data_png = np.array(np.zeros((M_grain.shape[0], M_grain.shape[1], 3)))
+    data_png = np.array(np.zeros((M_grain.shape[0], M_grain.shape[1], M_grain.shape[2], 3)))
 
     # iterate on the mesh
-    for l in range(M_grain.shape[0]):
-        for c in range(M_grain.shape[1]):
-            # create image
-            if M_grain[l, c] == 0 and M_cement[l, c] == 0 :
-                # pore
-                data_png[l, c, :] = [0, 0, 0]
-            elif M_grain[l, c] == 1:
-                # grain
-                data_png[l, c, :] = [1/255, 125/255, 125/255]
-            else:
-                # cement
-                data_png[l, c, :] = [2/255, 250/255, 250/255]
+    for i_x in range(M_grain.shape[0]):
+        for i_y in range(M_grain.shape[1]):
+            for i_z in range(M_grain.shape[2]):
+                # create image
+                if M_grain[i_x, i_y, i_z] == 0 and M_cement[i_x, i_y, i_z] == 0 :
+                    # pore
+                    data_png[i_x, i_y, i_z, :] = [0, 0, 0]
+                elif M_grain[i_x, i_y, i_z] == 1:
+                    # grain
+                    data_png[i_x, i_y, i_z, :] = [1/255, 125/255, 125/255]
+                else:
+                    # cement
+                    data_png[i_x, i_y, i_z, :] = [2/255, 250/255, 250/255]
 
         # generate the .png file
         plt.imsave('data/microstructure.png', data_png)
@@ -41,7 +42,7 @@ def Generate_png(M_grain, M_cement):
 # Write FEM inputs
 #-------------------------------------------------------------------------------
 
-def Write_compression_i(y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
+def Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
     '''
     Generate from a template the input file for Moose simulation.
 
@@ -55,34 +56,42 @@ def Write_compression_i(y_L, z_L, young_pore, poisson_pore, young_grain, poisson
     for line in lines :
         j = j + 1
         if j == 5:
-            line = line[:-1] + ' ' + str(int(len(y_L))) + '\n'
+            line = line[:-1] + ' ' + str(int(len(x_L))) + '\n'
         if j == 6:
-            line = line[:-1] + ' ' + str(int(len(z_L))) + '\n'
+            line = line[:-1] + ' ' + str(int(len(y_L))) + '\n'
         if j == 7:
-            line = line[:-1] + ' ' + str(min(y_L)) + '\n'
+            line = line[:-1] + ' ' + str(int(len(z_L))) + '\n'
         if j == 8:
-            line = line[:-1] + ' ' + str(max(y_L)) + '\n'
+            line = line[:-1] + ' ' + str(min(x_L)) + '\n'
         if j == 9:
-            line = line[:-1] + ' ' + str(min(z_L)) + '\n'
+            line = line[:-1] + ' ' + str(max(x_L)) + '\n'
         if j == 10:
-            line = line[:-1] + ' ' + str(max(z_L)) + '\n'
-        if j == 49:
+            line = line[:-1] + ' ' + str(min(y_L)) + '\n'
+        if j == 11:
+            line = line[:-1] + ' ' + str(max(y_L)) + '\n'
+        if j == 12:
+            line = line[:-1] + ' ' + str(min(y_L)) + '\n'
+        if j == 13:
+            line = line[:-1] + ' ' + str(max(y_L)) + '\n'
+        if j == 20:
+            pass
+        if j == 48:
             line = line[:-1] + ' ' + str(0.1*(max(z_L)-min(z_L))) + '*t\n'
-        if j == 67:
+        if j == 82:
             line = line[:-1] + ' ' + str(young_pore) + '\n'
-        if j == 68:
+        if j == 83:
             line = line[:-1] + ' ' + str(poisson_pore) + '\n'
-        if j == 78:
+        if j == 93:
             line = line[:-1] + ' ' + str(young_grain) + '\n'
-        if j == 79:
+        if j == 94:
             line = line[:-1] + ' ' + str(poisson_grain) + '\n'
-        if j == 89:
+        if j == 104:
             line = line[:-1] + ' ' + str(young_cement) + '\n'
-        if j == 90:
+        if j == 105:
             line = line[:-1] + ' ' + str(poisson_cement) + '\n'
-        if j == 110 or j == 112 or j == 113:
+        if j == 125 or j == 127 or j == 128:
             line = line[:-1] + ' ' + str(crit_res_fem) + '\n'
-        if j == 119:
+        if j == 134:
             line = line[:-1] + ' ' + str(dt_fem) + '\n'
         file_to_write.write(line)
     file_to_write.close()
@@ -122,15 +131,24 @@ def Read_FEM_csv(namefile, M_grain, M_cement, z_L):
     L_time = []
     L_stress_xx_grain = []
     L_stress_xy_grain = []
+    L_stress_xz_grain = []
     L_stress_yy_grain = []
+    L_stress_yz_grain = []
+    L_stress_zz_grain = []
     L_stress_xx_cement = []
     L_stress_xy_cement = []
+    L_stress_xz_cement = []
     L_stress_yy_cement = []
+    L_stress_yz_cement = []
+    L_stress_zz_cement = []
     # prepare homogenization
     L_strain = []
     L_stress_xx = []
     L_stress_xy = []
+    L_stress_xz = []
     L_stress_yy = []
+    L_stress_yz = []
+    L_stress_zz = []
     s_grain = np.sum(M_grain)
     s_cement = np.sum(M_cement)
 
@@ -142,18 +160,27 @@ def Read_FEM_csv(namefile, M_grain, M_cement, z_L):
         L_time.append(float(data[0]))
         L_stress_xx_grain.append(float(data[2]))
         L_stress_xy_grain.append(float(data[4]))
-        L_stress_yy_grain.append(float(data[6]))
+        L_stress_xz_grain.append(float(data[6]))
+        L_stress_yy_grain.append(float(data[8]))
+        L_stress_yz_grain.append(float(data[10]))
+        L_stress_zz_grain.append(float(data[12]))
         L_stress_xx_cement.append(float(data[1]))
         L_stress_xy_cement.append(float(data[3]))
-        L_stress_yy_cement.append(float(data[5]))
+        L_stress_xz_cement.append(float(data[5]))
+        L_stress_yy_cement.append(float(data[7]))
+        L_stress_yz_cement.append(float(data[9]))
+        L_stress_zz_cement.append(float(data[11]))
 
         # compute homogenization
         L_strain.append(L_time[-1]*0.1*(max(z_L)-min(z_L)))
         L_stress_xx.append((L_stress_xx_grain[-1]*s_grain + L_stress_xx_cement[-1]*s_cement)/(s_grain+s_cement))
         L_stress_xy.append((L_stress_xy_grain[-1]*s_grain + L_stress_xy_cement[-1]*s_cement)/(s_grain+s_cement))
+        L_stress_xz.append((L_stress_xz_grain[-1]*s_grain + L_stress_xz_cement[-1]*s_cement)/(s_grain+s_cement))
         L_stress_yy.append((L_stress_yy_grain[-1]*s_grain + L_stress_yy_cement[-1]*s_cement)/(s_grain+s_cement))
+        L_stress_yz.append((L_stress_yz_grain[-1]*s_grain + L_stress_yz_cement[-1]*s_cement)/(s_grain+s_cement))
+        L_stress_zz.append((L_stress_zz_grain[-1]*s_grain + L_stress_zz_cement[-1]*s_cement)/(s_grain+s_cement))
 
-    return L_strain, L_stress_xx, L_stress_xy, L_stress_yy
+    return L_strain, L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz
 
 #-------------------------------------------------------------------------------
 

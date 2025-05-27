@@ -1,50 +1,49 @@
 [Mesh]
   [generated]
     type = GeneratedMeshGenerator
-    dim = 2
+    dim = 3
     nx = 
     ny = 
+    nz = 
     xmin = 
     xmax = 
     ymin = 
     ymax = 
+    zmin = 
+    zmax = 
   []
   # assign three subdomains
   [sub_domains]
     input = generated
     type = ImageSubdomainGenerator
-    file = data/microstructure.png
+    file_base = data/microstructure_
+    file_range = 
+    file_suffix = 'png'
     component = 0
   []
 []
 
 [GlobalParams]
-  displacements = 'disp_x disp_y'
+  displacements = 'disp_x disp_y disp_z'
 []
 
 [Modules/TensorMechanics/Master]
   [all]
     add_variables = true
-    generate_output = 'stress_xx stress_xy stress_yx stress_yy'
+    generate_output = 'stress_xx stress_xy stress_xz stress_yx stress_yy stress_yz stress_zx stress_zy stress_zz'
   []
 []
 
 [BCs]
-  [bottom_x]
+  [bottom_z]
     type = DirichletBC
-    variable = disp_x
+    variable = disp_z
     boundary = bottom
     value = 0
   []
-  [bottom_y]
-    type = DirichletBC
-    variable = disp_y
-    boundary = bottom
-    value = 0
-  []
-  [top_y]
+  [top_z]
     type = FunctionDirichletBC
-    variable = disp_y
+    variable = disp_z
     boundary = top
     function = 
   []
@@ -53,9 +52,25 @@
       variable = disp_x
       auto_direction = 'x'
     [../]
+    [./per_x_y]
+      variable = disp_x
+      auto_direction = 'y'
+    [../]
     [./per_y_x]
       variable = disp_y
       auto_direction = 'x'
+    [../]
+    [./per_y_y]
+      variable = disp_y
+      auto_direction = 'y'
+    [../]
+    [./per_z_x]
+      variable = disp_z
+      auto_direction = 'x'
+    [../]
+    [./per_z_y]
+      variable = disp_z
+      auto_direction = 'y'
     [../]
   [../]
 []
@@ -115,7 +130,7 @@
   petsc_options_iname = '-pc_type'
   petsc_options_value = 'lu'
   
-  end_time = 1
+  end_time = 0.05 # 1
   dt = 
 []
 
@@ -131,9 +146,24 @@
     variable = stress_xy
     block = 1
   []
+  [stress_xz_gra_pp]
+    type = ElementAverageValue
+    variable = stress_xz
+    block = 1
+  []
   [stress_yy_gra_pp]
     type = ElementAverageValue
     variable = stress_yy
+    block = 1
+  []
+  [stress_yz_gra_pp]
+    type = ElementAverageValue
+    variable = stress_yz
+    block = 1
+  []
+  [stress_zz_gra_pp]
+    type = ElementAverageValue
+    variable = stress_zz
     block = 1
   []
   # cement
@@ -147,9 +177,24 @@
     variable = stress_xy
     block = 2
   []
+  [stress_xz_cem_pp]
+    type = ElementAverageValue
+    variable = stress_xz
+    block = 2
+  []
   [stress_yy_cem_pp]
     type = ElementAverageValue
     variable = stress_yy
+    block = 2
+  []
+  [stress_yz_cem_pp]
+    type = ElementAverageValue
+    variable = stress_yz
+    block = 2
+  []
+  [stress_zz_cem_pp]
+    type = ElementAverageValue
+    variable = stress_zz
     block = 2
   []
 []
@@ -162,6 +207,6 @@
   []
   [./csv]
     type = CSV
-    show = 'stress_xx_gra_pp stress_xy_gra_pp stress_yy_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_yy_cem_pp'
+    show = 'stress_xx_gra_pp stress_xy_gra_pp stress_xz_gra_pp stress_yy_gra_pp stress_yz_gra_pp stress_zz_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_xz_cem_pp stress_yy_cem_pp stress_yz_cem_pp stress_zz_cem_pp'
   [../]
 []
