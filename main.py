@@ -264,9 +264,9 @@ line = line + '\n'
 file_to_write_matter.write(line)
 # data
 file_to_write_matter.write('DATA\n')
-for i_x in range(len(x_L)):
+for i_z in range(len(z_L)):
     for i_y in range(len(y_L)):
-        for i_z in range(len(z_L)):
+        for i_x in range(len(x_L)):
             file_to_write_matter.write(str(pf_map_matter[i_x, i_y, i_z])+'\n')
 # close
 file_to_write_matter.close()
@@ -331,9 +331,9 @@ line = line + '\n'
 file_to_write_ed.write(line)
 # data
 file_to_write_ed.write('DATA\n')
-for i_x in range(len(x_L)):
+for i_z in range(len(z_L)):
     for i_y in range(len(y_L)):
-        for i_z in range(len(z_L)):
+        for i_x in range(len(x_L)):
             file_to_write_ed.write(str(ed_map[i_x, i_y, i_z])+'\n')
 # close
 file_to_write_ed.close()
