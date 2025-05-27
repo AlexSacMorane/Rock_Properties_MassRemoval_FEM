@@ -115,13 +115,13 @@ def Read_PF_vtk(iteration_str, L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_ma
                 L_matter = L_matter + list(matter_array[:L_i_XYZ_not_used[0]])
                 
     # Rebuild maps     
-    M_grain, M_cement = Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain, data_cement, iteration_str)
+    M_grain, M_cement = Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain, data_cement)
 
     return L_L_i_XYZ_not_used, L_XYZ_used, M_grain, M_cement
 
 #-------------------------------------------------------------------------------
 
-def Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain, data_cement, iteration_str):
+def Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain, data_cement):
     '''
     Rebuild numpy array from a list of values.
     '''
@@ -141,13 +141,13 @@ def Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain
         M_matter[i_x, i_y, i_z] = L_matter[i]
 
     # Apply masks to retrieve grain and cement
-    M_grain, M_cement = Grain_Cement_from_Matter(M_matter, data_grain, data_cement, iteration_str)
+    M_grain, M_cement = Grain_Cement_from_Matter(M_matter, data_grain, data_cement)
 
     return M_grain, M_cement
 
 #-------------------------------------------------------------------------------
 
-def Grain_Cement_from_Matter(M_matter, data_grain, data_cement, iteration_str):
+def Grain_Cement_from_Matter(M_matter, data_grain, data_cement):
     '''
     Apply the initial mask to retrieve grain and cement from matter.
     '''
@@ -158,26 +158,13 @@ def Grain_Cement_from_Matter(M_matter, data_grain, data_cement, iteration_str):
     # iterate on the mesh
     for i_x in range(M_matter.shape[0]):
         for i_y in range(M_matter.shape[1]):
-            for i_z in range(M_matter.shape[1]):
+            for i_z in range(M_matter.shape[2]):
                 if data_grain[i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
                     M_grain[i_x, i_y, i_z] = 1
                     M_matter_pp[i_x, i_y, i_z] = 1
                 if data_cement[i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
                     M_cement[i_x, i_y, i_z] = 1   
                     M_matter_pp[i_x, i_y, i_z] = 0.5
-    # plot
-    #fig, (ax1, ax2) = plt.subplots(nrows=1,ncols=2,figsize=(16,9))
-    #ax1.imshow(M_grain, cmap='binary')
-    #ax1.set_title('grain')
-    #ax2.imshow(M_cement, cmap='binary')
-    #ax2.set_title('cement')
-    #fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
-    #ax1.imshow(M_matter_pp, cmap='binary')
-    #ax1.set_title('grain (black) and cement (grey)')
-    #fig.suptitle(iteration_str)
-    #fig.tight_layout()
-    #fig.savefig('output/maps_bin_cement_grain_output/'+iteration_str+'.png')
-    #plt.close(fig)
 
     return M_grain, M_cement
 
