@@ -54,13 +54,24 @@ def index_to_str_4(j):
   return j_str
 
 #-------------------------------------------------------------------------------
+# Plots
+#-------------------------------------------------------------------------------
+
+plot_data_extracted = False
+plot_maps_bin = False
+plot_maps_pf = False
+
+#-------------------------------------------------------------------------------
 # Preparation
 #-------------------------------------------------------------------------------
 
 create_folder('output')
-create_folder('output/data_extracted')
-create_folder('output/maps_bin')
-create_folder('output/maps_pf')
+if plot_data_extracted:
+    create_folder('output/data_extracted')
+if plot_maps_bin:
+    create_folder('output/maps_bin')
+if plot_maps_pf:
+    create_folder('output/maps_pf')
 create_folder('data')
 create_folder('e')
 create_folder('i')
@@ -84,7 +95,8 @@ i_z_max = 650
 # extract data
 data_extracted = np.zeros((i_x_max-i_x_min+1, i_y_max-i_y_min+1, i_z_max-i_z_min+1))
 # iterate on the slices
-images = []
+if plot_data_extracted:
+    images = []
 for i_z in range(i_z_min, i_z_max+1):
     # read the image
     with Image.open('Tengattini2023/CGB29AT'+ index_to_str_4(i_z) +'.png') as im:
@@ -96,18 +108,20 @@ for i_z in range(i_z_min, i_z_max+1):
                 data_extracted[i_x-i_x_min, i_y-i_y_min, i_z-i_z_min] = data[i_x, i_y].copy() 
 
         # plot data extracted
-        fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
-        ax1.imshow(data_extracted[:,:, i_z-i_z_min], extent=(0, i_x_max-i_x_min+1, 0, i_y_max-i_y_min+1))
-        ax1.set_xlabel('axis x (pixels)')
-        ax1.set_ylabel('axis y (pixels)')
-        fig.tight_layout()
-        fig.savefig('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png')
-        plt.close(fig)
+        if plot_data_extracted : 
+            fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
+            ax1.imshow(data_extracted[:,:, i_z-i_z_min], extent=(0, i_x_max-i_x_min+1, 0, i_y_max-i_y_min+1))
+            ax1.set_xlabel('axis x (pixels)')
+            ax1.set_ylabel('axis y (pixels)')
+            fig.tight_layout()
+            fig.savefig('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png')
+            plt.close(fig)
 
-        # gif 
-        #images.append(imageio.imread('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png'))
-# generate gif
-#imageio.mimsave('output/data_extracted/ctscans.gif', images)
+            # save for the gif 
+            images.append(imageio.imread('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png'))
+if plot_data_extracted:
+    # generate gif
+    imageio.mimsave('output/data_extracted/ctscans.gif', images)
 
 # compute the histogram of the pixel values
 L_p, L_values = np.histogram(data_extracted, bins=np.arange(256))
@@ -144,14 +158,15 @@ for i_z in range(data_extracted.shape[2]):
                 data_matter[i_x, i_y, i_z] = 1
  
     # plot
-    fig, (ax1, ax2) = plt.subplots(nrows=1,ncols=2,figsize=(16,9))
-    ax1.imshow(data_grain[:, :, i_z], cmap='binary')
-    ax1.set_title('grain')
-    ax2.imshow(data_cement[:, :, i_z], cmap='binary')
-    ax2.set_title('cement')
-    fig.tight_layout()
-    fig.savefig('output/maps_bin/'+index_to_str_3(i_z)+'.png')
-    plt.close(fig)
+    if plot_maps_bin:
+        fig, (ax1, ax2) = plt.subplots(nrows=1,ncols=2,figsize=(16,9))
+        ax1.imshow(data_grain[:, :, i_z], cmap='binary')
+        ax1.set_title('grain')
+        ax2.imshow(data_cement[:, :, i_z], cmap='binary')
+        ax2.set_title('cement')
+        fig.tight_layout()
+        fig.savefig('output/maps_bin/'+index_to_str_3(i_z)+'.png')
+        plt.close(fig)
 
 #-------------------------------------------------------------------------------
 # Compute mesh
@@ -229,12 +244,13 @@ for i_z in range(len(z_L)):
                 pf_map_matter[i_x, i_y, i_z] = 0.5*(1+math.cos(math.pi*(-sdf_matter[i_x, i_y, i_z]+w_int_pf/2)/w_int_pf))
                 
     # plot
-    fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
-    ax1.imshow(pf_map_matter[:, :, i_z], cmap='binary', vmin=0, vmax=1)
-    ax1.set_title('matter = grain+cement')
-    fig.tight_layout()
-    fig.savefig('output/maps_pf/'+index_to_str_3(i_z)+'.png')
-    plt.close(fig)
+    if plot_maps_pf:
+        fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
+        ax1.imshow(pf_map_matter[:, :, i_z], cmap='binary', vmin=0, vmax=1)
+        ax1.set_title('matter = grain+cement')
+        fig.tight_layout()
+        fig.savefig('output/maps_pf/'+index_to_str_3(i_z)+'.png')
+        plt.close(fig)
 
 #-------------------------------------------------------------------------------
 # Write phase variables
