@@ -60,6 +60,7 @@ def index_to_str_4(j):
 create_folder('output')
 create_folder('output/data_extracted')
 create_folder('output/maps_bin')
+create_folder('output/maps_pf')
 create_folder('data')
 create_folder('e')
 create_folder('i')
@@ -95,13 +96,13 @@ for i_z in range(i_z_min, i_z_max+1):
                 data_extracted[i_x-i_x_min, i_y-i_y_min, i_z-i_z_min] = data[i_x, i_y].copy() 
 
         # plot data extracted
-        #fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
-        #ax1.imshow(data_extracted[:,:, i_z-i_z_min], extent=(0, i_x_max-i_x_min+1, 0, i_y_max-i_y_min+1))
-        #ax1.set_xlabel('axis x (pixels)')
-        #ax1.set_ylabel('axis y (pixels)')
-        #fig.tight_layout()
-        #fig.savefig('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png')
-        #plt.close(fig)
+        fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
+        ax1.imshow(data_extracted[:,:, i_z-i_z_min], extent=(0, i_x_max-i_x_min+1, 0, i_y_max-i_y_min+1))
+        ax1.set_xlabel('axis x (pixels)')
+        ax1.set_ylabel('axis y (pixels)')
+        fig.tight_layout()
+        fig.savefig('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png')
+        plt.close(fig)
 
         # gif 
         #images.append(imageio.imread('output/data_extracted/'+index_to_str_3(i_z-i_z_min)+'.png'))
@@ -143,14 +144,14 @@ for i_z in range(data_extracted.shape[2]):
                 data_matter[i_x, i_y, i_z] = 1
  
     # plot
-    #fig, (ax1, ax2) = plt.subplots(nrows=1,ncols=2,figsize=(16,9))
-    #ax1.imshow(data_grain[:, :, i_z], cmap='binary')
-    #ax1.set_title('grain')
-    #ax2.imshow(data_cement[:, :, i_z], cmap='binary')
-    #ax2.set_title('cement')
-    #fig.tight_layout()
-    #fig.savefig('output/maps_bin/'+index_to_str_3(i_z)+'.png')
-    #plt.close(fig)
+    fig, (ax1, ax2) = plt.subplots(nrows=1,ncols=2,figsize=(16,9))
+    ax1.imshow(data_grain[:, :, i_z], cmap='binary')
+    ax1.set_title('grain')
+    ax2.imshow(data_cement[:, :, i_z], cmap='binary')
+    ax2.set_title('cement')
+    fig.tight_layout()
+    fig.savefig('output/maps_bin/'+index_to_str_3(i_z)+'.png')
+    plt.close(fig)
 
 #-------------------------------------------------------------------------------
 # Compute mesh
@@ -202,9 +203,9 @@ pf_map_cement = np.zeros(sdf_cement.shape)
 pf_map_matter = np.zeros(sdf_matter.shape)
 
 # compute the phase field variables
-for i_x in range(len(x_L)):
-    for i_y in range(len(y_L)):
-        for i_z in range(len(z_L)):
+for i_z in range(len(z_L)):
+    for i_x in range(len(x_L)):
+        for i_y in range(len(y_L)):
             # grain
             if sdf_grain[i_x, i_y, i_z] > w_int_pf/2: # inside the grain
                 pf_map_grain[i_x, i_y, i_z] = 1
@@ -226,6 +227,14 @@ for i_x in range(len(x_L)):
                 pf_map_matter[i_x, i_y, i_z] = 0
             else : # in the interface
                 pf_map_matter[i_x, i_y, i_z] = 0.5*(1+math.cos(math.pi*(-sdf_matter[i_x, i_y, i_z]+w_int_pf/2)/w_int_pf))
+                
+    # plot
+    fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
+    ax1.imshow(pf_map_matter[:, :, i_z], cmap='binary', vmin=0, vmax=1)
+    ax1.set_title('matter = grain+cement')
+    fig.tight_layout()
+    fig.savefig('output/maps_pf/'+index_to_str_3(i_z)+'.png')
+    plt.close(fig)
 
 #-------------------------------------------------------------------------------
 # Write phase variables
