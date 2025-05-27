@@ -10,6 +10,22 @@ from PIL import Image
 from vtk.util.numpy_support import vtk_to_numpy
 
 #-------------------------------------------------------------------------------
+# Convert a index to str
+#-------------------------------------------------------------------------------
+
+def index_to_str(j):
+  '''
+  An integer is converted to a float with 3 components
+  '''
+  if j < 10:
+      j_str = '00'+str(j)
+  elif 10 <= j and j < 100:
+      j_str = '0'+str(j)
+  else :
+      j_str = str(j)
+  return j_str
+
+#-------------------------------------------------------------------------------
 # Generate png for the loading of the microstructure
 #-------------------------------------------------------------------------------
 
@@ -34,9 +50,10 @@ def Generate_png(M_grain, M_cement):
                 else:
                     # cement
                     data_png[i_x, i_y, i_z, :] = [2/255, 250/255, 250/255]
-
+    # iterate on z
+    for i_z in range(M_grain.shape[2]):
         # generate the .png file
-        plt.imsave('data/microstructure.png', data_png)
+        plt.imsave('data/microstructure'+index_to_str(i_z)+'.png', data_png)
 
 #-------------------------------------------------------------------------------
 # Write FEM inputs
