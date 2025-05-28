@@ -24,8 +24,6 @@ def Read_PF_csv(crit_res_pf):
     # init data
     time_pp = []
     matter_pp = []
-    grain_pp = []
-    cement_pp = []
 
     # iterate on lines
     for line in lines[1:]:
