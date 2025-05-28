@@ -305,7 +305,7 @@ kappa_pf = W_pf*w_int_pf*w_int_pf/9.86
 
 # resolution
 crit_res_pf = 1e-3
-n_ite_pf_max = 50
+n_ite_pf_max = 2 # 50
 dt_pf = 0.02
 n_proc = 4
 
