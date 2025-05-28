@@ -183,8 +183,6 @@ z_L = np.arange(-m_size*(data_extracted.shape[2]-1)/2, m_size*(data_extracted.sh
 #-------------------------------------------------------------------------------
 print('Compute sdfs')
 
-bin_map_grain = -np.ones(data_grain.shape)
-bin_map_cement = -np.ones(data_cement.shape)
 bin_map_matter = -np.ones(data_matter.shape)
 # iterate on x
 for i_x in range(data_grain.shape[0]):
@@ -192,16 +190,10 @@ for i_x in range(data_grain.shape[0]):
     for i_y in range(data_grain.shape[1]):
         # iterate on z  
         for i_z in range(data_grain.shape[2]):
-            if data_grain[i_x, i_y, i_z] == 1:
-                bin_map_grain[i_x, i_y, i_z] = 1
-            if data_cement[i_x, i_y, i_z] == 1:
-                bin_map_cement[i_x, i_y, i_z] = 1
             if data_matter[i_x, i_y, i_z] == 1:
                 bin_map_matter[i_x, i_y, i_z] = 1
                 
 # compute sdf
-sdf_grain = skfmm.distance(bin_map_grain, dx=np.array([m_size, m_size, m_size]))
-sdf_cement = skfmm.distance(bin_map_cement, dx=np.array([m_size, m_size, m_size]))
 sdf_matter = skfmm.distance(bin_map_matter, dx=np.array([m_size, m_size, m_size]))
         
 #-------------------------------------------------------------------------------
@@ -213,28 +205,12 @@ print('Compute pfs')
 w_int_pf = m_size*6/1
 
 # init
-pf_map_grain = np.zeros(sdf_grain.shape)
-pf_map_cement = np.zeros(sdf_cement.shape)
 pf_map_matter = np.zeros(sdf_matter.shape)
 
 # compute the phase field variables
 for i_z in range(len(z_L)):
     for i_x in range(len(x_L)):
         for i_y in range(len(y_L)):
-            # grain
-            if sdf_grain[i_x, i_y, i_z] > w_int_pf/2: # inside the grain
-                pf_map_grain[i_x, i_y, i_z] = 1
-            elif sdf_grain[i_x, i_y, i_z] < -w_int_pf/2: # outside the grain
-                pf_map_grain[i_x, i_y, i_z] = 0
-            else : # in the interface
-                pf_map_grain[i_x, i_y, i_z] = 0.5*(1+math.cos(math.pi*(-sdf_grain[i_x, i_y, i_z]+w_int_pf/2)/w_int_pf))
-            # cement
-            if sdf_cement[i_x, i_y, i_z] > w_int_pf/2: # inside the cement
-                pf_map_cement[i_x, i_y, i_z] = 1
-            elif sdf_cement[i_x, i_y, i_z] < -w_int_pf/2: # outside the cement
-                pf_map_cement[i_x, i_y, i_z] = 0
-            else : # in the interface
-                pf_map_cement[i_x, i_y, i_z] = 0.5*(1+math.cos(math.pi*(-sdf_cement[i_x, i_y, i_z]+w_int_pf/2)/w_int_pf))
             # matter
             if sdf_matter[i_x, i_y, i_z] > w_int_pf/2: # inside the cement
                 pf_map_matter[i_x, i_y, i_z] = 1
