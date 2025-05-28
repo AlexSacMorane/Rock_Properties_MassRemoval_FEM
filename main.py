@@ -516,6 +516,10 @@ for iteration in range(last_j+1):
     create_folder('i')
     create_folder('csv')
     create_folder('e')
+    if plot_maps_bin_output:
+        create_folder('output/microstructure_'+index_to_str_3(iteration))
+
+    # work with gmesh
 
     # Generate the png file for Moose FEM simulation
     Generate_png(M_grain, M_cement, plot_maps_bin_output, index_to_str_3(iteration))
