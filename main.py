@@ -494,9 +494,6 @@ dict_loading['n_proc'] = n_proc
 # Estimate the evolution of the elastic parameters
 #-------------------------------------------------------------------------------
 
-# preparation
-create_folder('output/maps_bin_cement_grain_output')
-
 # initialization
 L_young = []
 L_poisson = []
