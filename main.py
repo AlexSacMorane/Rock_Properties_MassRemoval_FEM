@@ -79,6 +79,15 @@ create_folder('i')
 create_folder('vtk')
 create_folder('csv')
 
+# dictionnaries
+dict_pf = {
+    'plot_data_extracted': plot_data_extracted,
+    'plot_maps_bin': plot_maps_bin,
+    'plot_maps_pf': plot_maps_pf,
+    'plot_maps_bin_output': plot_maps_bin_output
+}
+dict_loading = {}
+
 #-------------------------------------------------------------------------------
 # Read data
 #-------------------------------------------------------------------------------
@@ -169,6 +178,16 @@ for i_z in range(data_extracted.shape[2]):
         fig.savefig('output/maps_bin/'+index_to_str_3(i_z)+'.png')
         plt.close(fig)
 
+# save
+dict_pf['i_x_min'] = i_x_min
+dict_pf['i_x_max'] = i_x_max
+dict_pf['i_y_min'] = i_y_min
+dict_pf['i_y_max'] = i_y_max
+dict_pf['i_z_min'] = i_z_min
+dict_pf['i_z_max'] = i_z_max
+dict_pf['M_grain_0'] = data_grain
+dict_pf['M_cement_0'] = data_cement
+
 #-------------------------------------------------------------------------------
 # Compute mesh
 #-------------------------------------------------------------------------------
@@ -178,6 +197,12 @@ m_size = 1
 x_L = np.arange(-m_size*(data_extracted.shape[0]-1)/2, m_size*(data_extracted.shape[0]-1)/2+0.1*m_size, m_size)
 y_L = np.arange(-m_size*(data_extracted.shape[1]-1)/2, m_size*(data_extracted.shape[1]-1)/2+0.1*m_size, m_size)
 z_L = np.arange(-m_size*(data_extracted.shape[2]-1)/2, m_size*(data_extracted.shape[2]-1)/2+0.1*m_size, m_size)
+
+# save
+dict_pf['m_size'] = m_size
+dict_pf['x_L'] = x_L
+dict_pf['y_L'] = y_L
+dict_pf['z_L'] = z_L
 
 #-------------------------------------------------------------------------------
 # Compute sdfs
@@ -228,6 +253,8 @@ for i_z in range(len(z_L)):
         fig.tight_layout()
         fig.savefig('output/maps_pf/'+index_to_str_3(i_z)+'.png')
         plt.close(fig)
+
+dict_pf['w_int_pf'] = w_int_pf
 
 #-------------------------------------------------------------------------------
 # Write phase variables
@@ -281,6 +308,16 @@ crit_res_pf = 1e-3
 n_ite_pf_max = 50
 dt_pf = 0.02
 n_proc = 4
+
+# save
+dict_pf['f_mesh_pf'] = f_mesh_pf
+dict_pf['W_pf'] = W_pf
+dict_pf['ed_pf'] = ed_pf
+dict_pf['kappa_pf'] = kappa_pf
+dict_pf['crit_res_pf'] = crit_res_pf
+dict_pf['n_ite_pf_max'] = n_ite_pf_max
+dict_pf['dt_pf'] = dt_pf
+dict_pf['n_proc'] = n_proc
 
 #-------------------------------------------------------------------------------
 # Compute ed
@@ -440,7 +477,18 @@ poisson_pore = 0.3
 # resolution
 crit_res_fem = 1e-3
 dt_fem = 0.05
-n_proc = 4
+n_proc = n_proc
+
+# save
+dict_loading['young_grain'] = young_grain
+dict_loading['poisson_grain'] = poisson_grain
+dict_loading['young_cement'] = young_cement
+dict_loading['poisson_cement'] = poisson_cement
+dict_loading['young_pore'] = young_pore
+dict_loading['poisson_pore'] = poisson_pore
+dict_loading['crit_res_fem'] = crit_res_fem
+dict_loading['dt_fem'] = dt_fem
+dict_loading['n_proc'] = n_proc
 
 #-------------------------------------------------------------------------------
 # Estimate the evolution of the elastic parameters
@@ -456,15 +504,15 @@ L_shear = []
 L_bulk = []
 
 # check if the map is known (TO DO: create a database)
-L_L_i_XYZ_not_used = []
-L_XYZ_used = None
+dict_loading['L_L_i_XYZ_not_used'] = []
+dict_loading['L_XYZ_used'] = None
 
 # iteration on time
 for iteration in range(last_j+1):
     print(iteration+1,'/', last_j+1)
 
     # Read vtk output 
-    L_L_i_XYZ_not_used, L_XYZ_used, M_grain, M_cement = Read_PF_vtk(index_to_str_3(iteration), L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_matter, x_L, y_L, z_L, data_grain, data_cement)
+    M_grain, M_cement = Read_PF_vtk(index_to_str_3(iteration), dict_loading, dict_pf)
 
     # Prepare the MOOSE simulation
     create_folder('data')
@@ -473,7 +521,7 @@ for iteration in range(last_j+1):
     create_folder('e')
 
     # Generate the png file for Moose FEM simulation
-    Generate_png(M_grain, M_cement)
+    Generate_png(M_grain, M_cement, plot_maps_bin_output, index_to_str_3(iteration))
 
     # Write the compression .i file
     Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
@@ -492,6 +540,12 @@ for iteration in range(last_j+1):
     L_poisson.append(PoissonRatioSample)
 
     # TO DO same for shearing and isotropic
+
+# save
+dict_loading['L_young'] = L_young
+dict_loading['L_poisson'] = L_poisson
+dict_loading['L_shear'] = L_shear
+dict_loading['L_bulk'] = L_bulk
 
 #-------------------------------------------------------------------------------
 # Plot evolution elasic parameters

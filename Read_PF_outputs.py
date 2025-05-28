@@ -43,7 +43,7 @@ def Read_PF_csv(crit_res_pf):
 
 #-------------------------------------------------------------------------------
 
-def Read_PF_vtk(iteration_str, L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_matter, x_L, y_L, z_L, data_grain, data_cement):
+def  Read_PF_vtk(iteration_str, dict_loading, dict_pf):
     '''
     Read the vtk outputs of the PF simulation.
     '''
@@ -57,16 +57,16 @@ def Read_PF_vtk(iteration_str, L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_ma
     L_matter = []
 
     # Help the algorithm to know which node to used
-    if L_L_i_XYZ_not_used == []:
-        L_XYZ_used = []
+    if dict_loading['L_L_i_XYZ_not_used'] == []:
+        dict_loading['L_XYZ_used'] = []
         know_map = False
     else : 
         know_map = True
 
     # iterate on the proccessors used
-    for i_proc in range(n_proc):
+    for i_proc in range(dict_pf['n_proc']):
         if iteration_str == '000':
-            print('proc', i_proc+1, '/', n_proc)
+            print('proc', i_proc+1, '/', dict_pf['n_proc'])
 
         # name of the file to load
         namefile = template_file+iteration_str+'_'+str(i_proc)+'.vtu'
@@ -94,17 +94,17 @@ def Read_PF_vtk(iteration_str, L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_ma
             for i_XYZ in range(len(nodes_array)) :
                 XYZ = nodes_array[i_XYZ]
                 # Do not consider twice a point
-                if list(XYZ) not in L_XYZ_used :
-                    L_XYZ_used.append(list(XYZ))
+                if list(XYZ) not in dict_loading['L_XYZ_used'] :
+                    dict_loading['L_XYZ_used'].append(list(XYZ))
                     L_matter.append(matter_array[i_XYZ])
                 # Help the algorithm to know which nodes to used
                 else :
                     L_i_XYZ_not_used.append(i_XYZ)
             # Help the algorithm to know which nodes to used
-            L_L_i_XYZ_not_used.append(L_i_XYZ_not_used)
+            dict_loading['L_L_i_XYZ_not_used'].append(L_i_XYZ_not_used)
         # Algorithm knows already where to look
         else :
-            L_i_XYZ_not_used = L_L_i_XYZ_not_used[i_proc]
+            L_i_XYZ_not_used = dict_loading['L_L_i_XYZ_not_used'][i_proc]
             # all data are considered
             if L_i_XYZ_not_used == []:
                 L_matter = L_matter + list(matter_array)
@@ -113,25 +113,25 @@ def Read_PF_vtk(iteration_str, L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_ma
                 L_matter = L_matter + list(matter_array[:L_i_XYZ_not_used[0]])
                 
     # Rebuild maps     
-    M_grain, M_cement = Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain, data_cement)
+    M_grain, M_cement = Map_from_list(dict_loading, dict_pf, L_matter)
 
-    return L_L_i_XYZ_not_used, L_XYZ_used, M_grain, M_cement
+    return M_grain, M_cement
 
 #-------------------------------------------------------------------------------
 
-def Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain, data_cement):
+def Map_from_list(dict_loading, dict_pf, L_matter):
     '''
     Rebuild numpy array from a list of values.
     '''
     # initialization
-    M_matter = np.zeros(pf_map_matter.shape)
+    M_matter = np.zeros((len(dict_pf['x_L']), len(dict_pf['y_L']), len(dict_pf['z_L'])))
 
     # iterate on the domain
-    for i in range(len(L_XYZ_used)):
+    for i in range(len(dict_loading['L_XYZ_used'])):
         # interpolate meshes
-        find_ix = abs(np.array(x_L)-L_XYZ_used[i][0])
-        find_iy = abs(np.array(y_L)-L_XYZ_used[i][1])
-        find_iz = abs(np.array(z_L)-L_XYZ_used[i][2])
+        find_ix = abs(np.array(dict_pf['x_L'])-dict_loading['L_XYZ_used'][i][0])
+        find_iy = abs(np.array(dict_pf['y_L'])-dict_loading['L_XYZ_used'][i][1])
+        find_iz = abs(np.array(dict_pf['z_L'])-dict_loading['L_XYZ_used'][i][2])
         i_x = list(find_ix).index(min(find_ix))
         i_y = list(find_iy).index(min(find_iy))
         i_z = list(find_iz).index(min(find_iz))
@@ -139,30 +139,30 @@ def Map_from_list(pf_map_matter, L_XYZ_used, L_matter, x_L, y_L, z_L, data_grain
         M_matter[i_x, i_y, i_z] = L_matter[i]
 
     # Apply masks to retrieve grain and cement
-    M_grain, M_cement = Grain_Cement_from_Matter(M_matter, data_grain, data_cement)
+    M_grain, M_cement = Grain_Cement_from_Matter(M_matter, dict_pf)
 
     return M_grain, M_cement
 
 #-------------------------------------------------------------------------------
 
-def Grain_Cement_from_Matter(M_matter, data_grain, data_cement):
+def Grain_Cement_from_Matter(M_matter, dict_pf):
     '''
     Apply the initial mask to retrieve grain and cement from matter.
     '''
     # initialization
     M_cement = np.zeros(M_matter.shape)
     M_grain = np.zeros(M_matter.shape)    
-    M_matter_pp = np.zeros(M_matter.shape)
+    #M_matter_pp = np.zeros(M_matter.shape)
     # iterate on the mesh
     for i_x in range(M_matter.shape[0]):
         for i_y in range(M_matter.shape[1]):
             for i_z in range(M_matter.shape[2]):
-                if data_grain[i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
+                if dict_pf['M_grain_0'][i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
                     M_grain[i_x, i_y, i_z] = 1
-                    M_matter_pp[i_x, i_y, i_z] = 1
-                if data_cement[i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
+                    #M_matter_pp[i_x, i_y, i_z] = 1
+                if dict_pf['M_cement_0'][i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
                     M_cement[i_x, i_y, i_z] = 1   
-                    M_matter_pp[i_x, i_y, i_z] = 0.5
+                    #M_matter_pp[i_x, i_y, i_z] = 0.5
 
     return M_grain, M_cement
 
