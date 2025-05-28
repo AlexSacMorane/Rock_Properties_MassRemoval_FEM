@@ -29,12 +29,14 @@ def index_to_str(j):
 # Generate png for the loading of the microstructure
 #-------------------------------------------------------------------------------
 
-def Generate_png(M_grain, M_cement):
+def Generate_png(M_grain, M_cement, plot_maps_bin_output, iteration_str):
     '''
     Generate a png file (input of the FEM Moose simulation) from the numpy arrays.
     '''
     # initialize the png
     data_png = np.array(np.zeros((M_grain.shape[0], M_grain.shape[1], M_grain.shape[2], 3)))
+    if plot_maps_bin_output:
+        M_matter = np.array(np.zeros(M_grain.shape))
 
     # iterate on the mesh
     for i_x in range(M_grain.shape[0]):
@@ -47,14 +49,27 @@ def Generate_png(M_grain, M_cement):
                 elif M_grain[i_x, i_y, i_z] == 1:
                     # grain
                     data_png[i_x, i_y, i_z, :] = [1/255, 125/255, 125/255]
+                    if plot_maps_bin_output:
+                        M_matter[i_x, i_y, i_z] = 1
                 else:
                     # cement
                     data_png[i_x, i_y, i_z, :] = [2/255, 250/255, 250/255]
+                    if plot_maps_bin_output:
+                        M_matter[i_x, i_y, i_z] = 0.5
     # iterate on z
     for i_z in range(M_grain.shape[2]):
         # generate the .png file
-        plt.imsave('data/microstructure'+index_to_str(i_z)+'.png', data_png)
-
+        plt.imsave('data/microstructure'+index_to_str(i_z+1)+'.png', data_png[:, :, i_z, :])
+        # save the .png file
+        if plot_maps_bin_output:
+            fig, (ax1) = plt.subplots(nrows=1,ncols=1,figsize=(16,9))
+            ax1.imshow(M_matter[:,:,i_z], extent=(0, M_matter.shape[0], 0, M_matter.shape[1]))
+            ax1.set_xlabel('axis x (pixels)')
+            ax1.set_ylabel('axis y (pixels)')
+            fig.tight_layout()
+            fig.savefig('output/microstructure_'+iteration_str+'/'+index_to_str(i_z)+'.png')
+            plt.close(fig)
+            
 #-------------------------------------------------------------------------------
 # Write FEM inputs
 #-------------------------------------------------------------------------------

@@ -57,9 +57,10 @@ def index_to_str_4(j):
 # Plots
 #-------------------------------------------------------------------------------
 
-plot_data_extracted = False
+plot_data_extracted = True
 plot_maps_bin = False
 plot_maps_pf = False
+plot_maps_bin_output = True
 
 #-------------------------------------------------------------------------------
 # Preparation
