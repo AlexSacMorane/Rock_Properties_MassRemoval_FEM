@@ -16,7 +16,7 @@
   [sub_domains]
     input = generated
     type = ImageSubdomainGenerator
-    file_base = data/microstructure_
+    file_base = data/microstructure
     file_range = 
     file_suffix = 'png'
     component = 0
