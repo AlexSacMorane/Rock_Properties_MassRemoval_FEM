@@ -91,7 +91,7 @@ def Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, po
         if j == 13:
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
         if j == 20:
-            pass
+            line = line[:-1] + ' ' + str(len(z_L)) + '\n'
         if j == 48:
             line = line[:-1] + ' ' + str(0.1*(max(z_L)-min(z_L))) + '*t\n'
         if j == 82:
