@@ -150,7 +150,7 @@
   exodus = true
   [./other]
     type = VTK
-    execute_on = 'TIMESTEP_END'
+    execute_on = 'initial TIMESTEP_END'
   [../]
   [console]
     type = Console
