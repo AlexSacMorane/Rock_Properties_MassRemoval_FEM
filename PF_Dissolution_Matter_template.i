@@ -47,9 +47,17 @@
 
 [BCs]
   [./Periodic]
-    [./per_matter_xyz]
+    [./per_matter_x]
       variable = matter
-      auto_direction = 'x y z'
+      auto_direction = 'x'
+    [../]
+    [./per_matter_y]
+      variable = matter
+      auto_direction = 'y'
+    [../]
+    [./per_matter_z]
+      variable = matter
+      auto_direction = 'z'
     [../]
   [../]
 []

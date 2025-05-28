@@ -384,17 +384,17 @@ for line in lines :
         line = line[:-1] + ' ' + str(min(z_L)) + '\n'
     if j == 12:
         line = line[:-1] + ' ' + str(max(z_L)) + '\n'
-    if j == 61:
+    if j == 69:
         line = line[:-1] + " '" + str(1) + ' ' + str(kappa_pf) + "'\n"
-    if j == 78:
+    if j == 86:
         line = line[:-1] + " '" + str(W_pf) + "'\n"
-    if j == 116 or j == 117 or j == 120 or j == 121:
+    if j == 124 or j == 125 or j == 128 or j == 129:
         line = line[:-1] + " " + str(crit_res_pf) + "\n"
-    if j == 124:
+    if j == 132:
         line = line[:-1] + " " + str(10*n_ite_pf_max) + "\n"
-    if j == 125:
+    if j == 133:
         line = line[:-1] + " " + str(dt_pf*n_ite_pf_max) + "\n"
-    if j == 129:
+    if j == 137:
         line = line[:-1] + " " + str(dt_pf) + "\n"
     file_to_write.write(line)
 
