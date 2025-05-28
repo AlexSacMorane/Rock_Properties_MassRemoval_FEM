@@ -460,7 +460,7 @@ L_XYZ_used = None
 
 # iteration on time
 for iteration in range(last_j+1):
-    print(iteration+1,'/', last_j)
+    print(iteration+1,'/', last_j+1)
 
     # Read vtk output 
     L_L_i_XYZ_not_used, L_XYZ_used, M_grain, M_cement = Read_PF_vtk(index_to_str_3(iteration), L_L_i_XYZ_not_used, L_XYZ_used, n_proc, pf_map_matter, x_L, y_L, z_L, data_grain, data_cement)
