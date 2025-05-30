@@ -17,7 +17,6 @@
     input = generated
     type = ImageSubdomainGenerator
     file_base = data/microstructure
-    file_range = 
     file_suffix = 'png'
     component = 0
   []
@@ -130,7 +129,7 @@
   petsc_options_iname = '-pc_type'
   petsc_options_value = 'lu'
   
-  end_time = 0.05 # 1
+  end_time = 1
   dt = 
 []
 

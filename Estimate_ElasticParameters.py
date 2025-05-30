@@ -105,25 +105,23 @@ def Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, po
             line = line[:-1] + ' ' + str(min(y_L)) + '\n'
         if j == 13:
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
-        if j == 20:
-            line = line[:-1] + ' ' + str(len(z_L)) + '\n'
-        if j == 48:
+        if j == 47:
             line = line[:-1] + ' ' + str(0.1*(max(z_L)-min(z_L))) + '*t\n'
-        if j == 82:
+        if j == 81:
             line = line[:-1] + ' ' + str(young_pore) + '\n'
-        if j == 83:
+        if j == 82:
             line = line[:-1] + ' ' + str(poisson_pore) + '\n'
-        if j == 93:
+        if j == 92:
             line = line[:-1] + ' ' + str(young_grain) + '\n'
-        if j == 94:
+        if j == 93:
             line = line[:-1] + ' ' + str(poisson_grain) + '\n'
-        if j == 104:
+        if j == 103:
             line = line[:-1] + ' ' + str(young_cement) + '\n'
-        if j == 105:
+        if j == 104:
             line = line[:-1] + ' ' + str(poisson_cement) + '\n'
-        if j == 125 or j == 127 or j == 128:
+        if j == 124 or j == 126 or j == 127:
             line = line[:-1] + ' ' + str(crit_res_fem) + '\n'
-        if j == 134:
+        if j == 133:
             line = line[:-1] + ' ' + str(dt_fem) + '\n'
         file_to_write.write(line)
     file_to_write.close()
