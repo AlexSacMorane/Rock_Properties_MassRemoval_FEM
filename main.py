@@ -526,23 +526,20 @@ for iteration in range(last_j+1):
     Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
     # Run fem MOOSE simulation
     os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Compression.i')
-    raise ValueError('stop')
     
-    if False: # tempo
+    # Read the csv output
+    L_strain, L_stress_xx, L_stress_xy, L_stress_yy = Read_FEM_csv('FEM_Loading_Compression_csv.csv', M_grain, M_cement, z_L)
+    # sort .i, .csv, .e files
+    os.rename('FEM_Loading_Compression.i','i/FEM_Loading_Compression.i')
+    os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
+    os.rename('FEM_Loading_Compression_out.e','e/FEM_Loading_Compression_out.e')
+    # interpolate elastic parameters
+    YoungModulusSample, PoissonRatioSample = Interpolate_compression_props(L_strain, L_stress_xx, L_stress_yy)
+    # save
+    L_young.append(YoungModulusSample)
+    L_poisson.append(PoissonRatioSample)
 
-        # Read the csv output
-        L_strain, L_stress_xx, L_stress_xy, L_stress_yy = Read_FEM_csv('FEM_Loading_Compression_csv.csv', M_grain, M_cement, z_L)
-        # sort .i, .csv, .e files
-        os.rename('FEM_Loading_Compression.i','i/FEM_Loading_Compression.i')
-        os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
-        os.rename('FEM_Loading_Compression_out.e','e/FEM_Loading_Compression_out.e')
-        # interpolate elastic parameters
-        YoungModulusSample, PoissonRatioSample = Interpolate_compression_props(L_strain, L_stress_xx, L_stress_yy)
-        # save
-        L_young.append(YoungModulusSample)
-        L_poisson.append(PoissonRatioSample)
-
-        # TO DO same for shearing and isotropic
+    # TO DO same for shearing and isotropic
 
 # save
 dict_loading['L_young'] = L_young
