@@ -57,7 +57,7 @@ def index_to_str_4(j):
 # Plots
 #-------------------------------------------------------------------------------
 
-plot_data_extracted = True
+plot_data_extracted = False
 plot_maps_bin = False
 plot_maps_pf = False
 plot_maps_bin_output = True
@@ -96,11 +96,11 @@ print('Extract data from CTscans')
 # Image are 1341 x 1200 x 1200
 # definition of the extraction zone
 i_x_min = 500
-i_x_max = 550
+i_x_max = 520
 i_y_min = 500
-i_y_max = 550
+i_y_max = 520
 i_z_min = 500
-i_z_max = 550
+i_z_max = 520
 
 # extract data
 data_extracted = np.zeros((i_x_max-i_x_min+1, i_y_max-i_y_min+1, i_z_max-i_z_min+1))
