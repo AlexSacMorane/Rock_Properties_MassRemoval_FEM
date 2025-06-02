@@ -249,7 +249,7 @@ def lsm_linear(L_y, L_x):
 
 #-------------------------------------------------------------------------------
 
-def Interpolate_compression_props(L_strain, L_stress_xx, L_stress_yy):
+def Interpolate_compression_props(L_strain, L_stress_yy):
     '''
     Interpolate the mechanical properties from a compression test:
         - Young Modulus Y
@@ -263,15 +263,7 @@ def Interpolate_compression_props(L_strain, L_stress_xx, L_stress_yy):
     # save parameter
     YoungModulusSample = a
 
-    # interpolate function
-    a, b, corr = lsm_linear(L_stress_xx, L_stress_yy)
-    # print result
-    #print('\nPoisson ratio interpolation (y=ax+b):')
-    #print('a:', a, 'b:', b, 'cor:', corr)
-    # save parameter
-    PoissonRatioSample = a
-
-    return YoungModulusSample, PoissonRatioSample
+    return YoungModulusSample
     
 #-------------------------------------------------------------------------------
 
