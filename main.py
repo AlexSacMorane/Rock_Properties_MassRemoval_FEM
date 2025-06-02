@@ -528,16 +528,15 @@ for iteration in range(last_j+1):
     os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Compression.i')
     
     # Read the csv output
-    L_strain, L_stress_xx, L_stress_xy, L_stress_yy = Read_FEM_csv('FEM_Loading_Compression_csv.csv', M_grain, M_cement, z_L)
+    L_strain, L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Compression_csv.csv', M_grain, M_cement, z_L)
     # sort .i, .csv, .e files
     os.rename('FEM_Loading_Compression.i','i/FEM_Loading_Compression.i')
     os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
     os.rename('FEM_Loading_Compression_out.e','e/FEM_Loading_Compression_out.e')
     # interpolate elastic parameters
-    YoungModulusSample, PoissonRatioSample = Interpolate_compression_props(L_strain, L_stress_xx, L_stress_yy)
+    YoungModulusSample = Interpolate_compression_props(L_strain, L_stress_zz)
     # save
     L_young.append(YoungModulusSample)
-    L_poisson.append(PoissonRatioSample)
 
     # TO DO same for shearing and isotropic
 
