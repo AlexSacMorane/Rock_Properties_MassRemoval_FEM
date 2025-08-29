@@ -157,7 +157,7 @@ def Grain_Cement_from_Matter(M_matter, dict_pf):
     for i_x in range(M_matter.shape[0]):
         for i_y in range(M_matter.shape[1]):
             for i_z in range(M_matter.shape[2]):
-                if dict_pf['M_grain_0'][i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
+                if dict_pf['M_grain_0'][i_x, i_y, i_z] == 1 :
                     M_grain[i_x, i_y, i_z] = 1
                     #M_matter_pp[i_x, i_y, i_z] = 1
                 if dict_pf['M_cement_0'][i_x, i_y, i_z] == 1 and M_matter[i_x, i_y, i_z] > 0.5:
