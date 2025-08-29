@@ -486,6 +486,19 @@ n_proc = n_proc
 # compression, shearing, triaxial, isotropic
 loading = ['triaxial', 'isotropic']
 
+# define compression
+if 'compression' in loading:
+    dict_loading['compression_strain'] = -0.1
+# define shearing
+if 'shearing' in loading:
+    pass
+# define triaxial
+if 'triaxial' in loading:
+    dict_loading['triaxial_stress'] = -0.08
+# define compression
+if 'isotropric' in loading:
+    pass
+
 # save
 dict_loading['young_grain'] = young_grain
 dict_loading['poisson_grain'] = poisson_grain
@@ -528,7 +541,7 @@ for iteration in range(last_j+1):
 
     if 'compression' in dict_loading['loading']:
         # Write the compression .i file
-        Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+        Write_compression_i(x_L, y_L, z_L, dict_loading['compression_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
         # Run fem MOOSE simulation
         os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Compression.i')
         
@@ -538,7 +551,7 @@ for iteration in range(last_j+1):
         # compute the strain
         L_strain = []
         for i_strain in range(len(L_stress_zz)):
-            L_strain.append(-i_strain/(len(L_stress_zz)-1)*0.1*(max(z_L)-min(z_L)))
+            L_strain.append(i_strain/(len(L_stress_zz)-1)*dict_loading['compression_strain']*(max(z_L)-min(z_L)))
         # sort .i, .csv, .e files
         os.rename('FEM_Loading_Compression.i','i/FEM_Loading_Compression.i')
         os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
@@ -550,7 +563,7 @@ for iteration in range(last_j+1):
 
     if 'triaxial' in dict_loading['loading']:
         # Write the triaxial .i file
-        Write_triaxial_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+        Write_triaxial_i(x_L, y_L, z_L, dict_loading['triaxial_stress'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
         # Run fem MOOSE simulation
         os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Triaxial.i')
         
@@ -560,7 +573,7 @@ for iteration in range(last_j+1):
         # compute the stress
         L_stress = []
         for i_stress in range(len(L_strain_zz)):
-            L_stress.append(-i_stress/(len(L_strain_zz)-1)*0.08)
+            L_stress.append(i_stress/(len(L_strain_zz)-1)*dict_loading['triaxial_stress'])
         # sort .i, .csv, .e files
         os.rename('FEM_Loading_Triaxial.i','i/FEM_Loading_Triaxial.i')
         os.rename('FEM_Loading_Triaxial_csv.csv','csv/FEM_Loading_Triaxial_csv.csv')

@@ -74,7 +74,7 @@ def Generate_png(M_grain, M_cement, plot_maps_bin_output, iteration_str):
 # Write FEM inputs
 #-------------------------------------------------------------------------------
 
-def Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
+def Write_compression_i(x_L, y_L, z_L, compression_strain, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
     '''
     Generate from a template the input file for Moose simulation.
 
@@ -106,7 +106,7 @@ def Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, po
         if j == 13:
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
         if j == 48:
-            line = line[:-1] + ' ' + str(-0.1*(max(z_L)-min(z_L))) + '*t\n'
+            line = line[:-1] + ' ' + str(compression_strain*(max(z_L)-min(z_L))) + '*t\n'
         if j == 94:
             line = line[:-1] + ' ' + str(young_pore) + '\n'
         if j == 95:
@@ -128,7 +128,7 @@ def Write_compression_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, po
 
 #-------------------------------------------------------------------------------
 
-def Write_triaxial_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
+def Write_triaxial_i(x_L, y_L, z_L, triaxial_stress, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
     '''
     Generate from a template the input file for Moose simulation.
 
@@ -160,7 +160,7 @@ def Write_triaxial_i(x_L, y_L, z_L, young_pore, poisson_pore, young_grain, poiss
         if j == 13:
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
         if j == 48:
-            line = line[:-1] + ' ' + "'-0.08*t'\n"
+            line = line[:-1] + " '" + str(triaxial_stress) + "*t'\n"
         if j == 68:
             line = line[:-1] + ' ' + str(young_pore) + '\n'
         if j == 69:
