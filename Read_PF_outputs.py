@@ -5,6 +5,7 @@
 import shutil, os, pickle, skfmm, math, vtk
 import numpy as np
 import matplotlib.pyplot as plt
+import pyvista as pv
 from pathlib import Path
 from PIL import Image
 from vtk.util.numpy_support import vtk_to_numpy
@@ -44,6 +45,35 @@ def Read_PF_csv(crit_res_pf):
 #-------------------------------------------------------------------------------
 
 def  Read_PF_vtk(iteration_str, dict_loading, dict_pf):
+    '''
+    Read the vtk outputs of the PF simulation.
+    '''
+    if iteration_str == '000':
+        print('Read vtk')
+
+    # template of the files read
+    template_file = 'vtk/PF_Dissolution_other_'
+    # name of the file
+    namefile = template_file+iteration_str+'.pvtu'
+
+    # read the .pvtu file 
+    dataset = pv.read(namefile)
+
+    # extract the points
+    L_points = dataset.points
+
+    # extract the material 
+    L_matter = dataset['matter']
+    
+    # Rebuild maps     
+    M_grain, M_cement = Map_from_list(dict_loading, dict_pf, L_points, L_matter)
+
+    return M_grain, M_cement
+
+    
+#-------------------------------------------------------------------------------
+
+def  Read_PF_vtk_old(iteration_str, dict_loading, dict_pf):
     '''
     Read the vtk outputs of the PF simulation.
     '''
@@ -119,7 +149,7 @@ def  Read_PF_vtk(iteration_str, dict_loading, dict_pf):
 
 #-------------------------------------------------------------------------------
 
-def Map_from_list(dict_loading, dict_pf, L_matter):
+def Map_from_list(dict_loading, dict_pf, L_points, L_matter):
     '''
     Rebuild numpy array from a list of values.
     '''
@@ -127,11 +157,11 @@ def Map_from_list(dict_loading, dict_pf, L_matter):
     M_matter = np.zeros((len(dict_pf['x_L']), len(dict_pf['y_L']), len(dict_pf['z_L'])))
 
     # iterate on the domain
-    for i in range(len(dict_loading['L_XYZ_used'])):
+    for i in range(len(L_points)):
         # interpolate meshes
-        find_ix = abs(np.array(dict_pf['x_L'])-dict_loading['L_XYZ_used'][i][0])
-        find_iy = abs(np.array(dict_pf['y_L'])-dict_loading['L_XYZ_used'][i][1])
-        find_iz = abs(np.array(dict_pf['z_L'])-dict_loading['L_XYZ_used'][i][2])
+        find_ix = abs(np.array(dict_pf['x_L'])-L_points[i][0])
+        find_iy = abs(np.array(dict_pf['y_L'])-L_points[i][1])
+        find_iz = abs(np.array(dict_pf['z_L'])-L_points[i][2])
         i_x = list(find_ix).index(min(find_ix))
         i_y = list(find_iy).index(min(find_iy))
         i_z = list(find_iz).index(min(find_iz))
