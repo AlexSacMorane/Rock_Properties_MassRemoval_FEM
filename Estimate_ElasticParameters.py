@@ -366,7 +366,7 @@ def Interpolate_compression_props(L_strain_zz, L_stress_zz):
 
 #-------------------------------------------------------------------------------
 
-def Interpolate_triaxial_props(L_strain_zz, L_stress_zz):
+def Interpolate_triaxial_props(L_strain_xx, L_strain_yy, L_strain_zz, L_stress_zz):
     '''
     Interpolate the mechanical properties from a compression test:
         - Young Modulus Y
@@ -381,7 +381,24 @@ def Interpolate_triaxial_props(L_strain_zz, L_stress_zz):
     # save parameter
     YoungModulusSample = a
 
-    return YoungModulusSample
+    # interpolate function
+    a, b, corr = lsm_linear(L_strain_xx, L_strain_zz)
+    # print result
+    #print('\nYoung Modulus interpolation (y=ax+b):')
+    #print('a:', a, 'b:', b, 'cor:', corr)
+    # save parameter
+    PoissonRatioSample_xz = a
+    # interpolate function
+    a, b, corr = lsm_linear(L_strain_yy, L_strain_zz)
+    # print result
+    #print('\nYoung Modulus interpolation (y=ax+b):')
+    #print('a:', a, 'b:', b, 'cor:', corr)
+    # save parameter
+    PoissonRatioSample_yz = a
+    # compute the mean
+    PoissonRatioSample = PoissonRatioSample_xz*0.5 + PoissonRatioSample_yz*0.5
+
+    return YoungModulusSample, PoissonRatioSample
     
 #-------------------------------------------------------------------------------
 

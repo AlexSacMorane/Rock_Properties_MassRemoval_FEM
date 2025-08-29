@@ -559,7 +559,8 @@ for iteration in range(last_j+1):
         # interpolate elastic parameters
         YoungModulusSample = Interpolate_compression_props(L_strain, L_stress_zz)
         # save
-        L_young_a.append(YoungModulusSample)
+        if not 'triaxial' in dict_loading['loading']: # triaxial test has the priority
+            L_young.append(YoungModulusSample)
 
     if 'triaxial' in dict_loading['loading']:
         # Write the triaxial .i file
@@ -579,9 +580,10 @@ for iteration in range(last_j+1):
         os.rename('FEM_Loading_Triaxial_csv.csv','csv/FEM_Loading_Triaxial_csv.csv')
         os.rename('FEM_Loading_Triaxial_out.e','e/FEM_Loading_Triaxial_out.e')
         # interpolate elastic parameters
-        YoungModulusSample = Interpolate_triaxial_props(L_strain_zz, L_stress)
+        YoungModulusSample, PoissonRatioSample = Interpolate_triaxial_props(L_strain_xx, L_strain_yy, L_strain_zz, L_stress)
         # save
-        L_young_b.append(YoungModulusSample)
+        L_young.append(YoungModulusSample)
+        L_poisson.append(PoissonRatioSample)
 
     # TO DO same for shearing and isotropic
     if 'shearing' in dict_loading['loading']:
@@ -589,10 +591,7 @@ for iteration in range(last_j+1):
 
     if 'isotropic' in dict_loading['loading']:
         pass
-
-print('Compression:', L_young_a)
-print('Triaxial:', L_young_b)
-        
+       
 
 # save
 dict_loading['L_young'] = L_young
