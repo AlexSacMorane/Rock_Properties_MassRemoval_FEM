@@ -2,7 +2,7 @@
 # Librairies
 #-------------------------------------------------------------------------------
 
-import shutil, os, pickle, skfmm, math, vtk, imageio
+import shutil, os, pickle, skfmm, math, vtk, imageio, random
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -93,14 +93,17 @@ dict_loading = {}
 #-------------------------------------------------------------------------------
 print('Extract data from CTscans')
 
+# determine the size (> 150 for REV)
+size = 20
+
 # Image are 1341 x 1200 x 1200
 # definition of the extraction zone
-i_x_min = 500
-i_x_max = 520
-i_y_min = 500
-i_y_max = 520
-i_z_min = 500
-i_z_max = 520
+i_x_min = random.randint(450, 970-size)
+i_x_max = i_x_min + size
+i_y_min = random.randint(590, 970-size)
+i_y_max = i_y_min + size
+i_z_min = random.randint(200, 1480-size)
+i_z_max = i_z_min + size
 
 # extract data
 data_extracted = np.zeros((i_x_max-i_x_min+1, i_y_max-i_y_min+1, i_z_max-i_z_min+1))
