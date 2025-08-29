@@ -29,7 +29,8 @@
 [Modules/TensorMechanics/Master]
   [all]
     add_variables = true
-    generate_output = 'stress_xx stress_xy stress_xz stress_yx stress_yy stress_yz stress_zx stress_zy stress_zz'
+    generate_output = 'stress_xx stress_xy stress_xz stress_yx stress_yy stress_yz stress_zx stress_zy stress_zz
+                       strain_xx strain_xy strain_xz strain_yx strain_yy strain_yz strain_zx strain_zy strain_zz'
   []
 []
 
@@ -37,14 +38,26 @@
   [bottom_z]
     type = DirichletBC
     variable = disp_z
-    boundary = bottom
+    boundary = back
     value = 0
   []
   [top_z]
     type = FunctionDirichletBC
     variable = disp_z
-    boundary = top
+    boundary = front
     function = 
+  []
+  [left_x]
+    type = DirichletBC
+    variable = disp_x
+    boundary = left 
+    value = 0
+  []
+  [bottom_y]
+    type = DirichletBC
+    variable = disp_y
+    boundary = bottom 
+    value = 0
   []
   [./Periodic]
     [./per_x_x]
@@ -165,6 +178,36 @@
     variable = stress_zz
     block = 1
   []
+  [strain_xx_gra_pp]
+    type = ElementAverageValue
+    variable = strain_xx
+    block = 1
+  []
+  [strain_xy_gra_pp]
+    type = ElementAverageValue
+    variable = strain_xy
+    block = 1
+  []
+  [strain_xz_gra_pp]
+    type = ElementAverageValue
+    variable = strain_xz
+    block = 1
+  []
+  [strain_yy_gra_pp]
+    type = ElementAverageValue
+    variable = strain_yy
+    block = 1
+  []
+  [strain_yz_gra_pp]
+    type = ElementAverageValue
+    variable = strain_yz
+    block = 1
+  []
+  [strain_zz_gra_pp]
+    type = ElementAverageValue
+    variable = strain_zz
+    block = 1
+  []
   # cement
   [stress_xx_cem_pp]
     type = ElementAverageValue
@@ -196,6 +239,36 @@
     variable = stress_zz
     block = 2
   []
+  [strain_xx_cem_pp]
+    type = ElementAverageValue
+    variable = strain_xx
+    block = 2
+  []
+  [strain_xy_cem_pp]
+    type = ElementAverageValue
+    variable = strain_xy
+    block = 2
+  []
+  [strain_xz_cem_pp]
+    type = ElementAverageValue
+    variable = strain_xz
+    block = 2
+  []
+  [strain_yy_cem_pp]
+    type = ElementAverageValue
+    variable = strain_yy
+    block = 2
+  []
+  [strain_yz_cem_pp]
+    type = ElementAverageValue
+    variable = strain_yz
+    block = 2
+  []
+  [strain_zz_cem_pp]
+    type = ElementAverageValue
+    variable = strain_zz
+    block = 2
+  []
 []
 
 [Outputs]
@@ -203,9 +276,12 @@
   [console]
     type = Console
     execute_on = 'nonlinear'
+    max_rows = 5
+    show = 'strain_zz_gra_pp strain_zz_cem_pp stress_zz_gra_pp stress_zz_cem_pp'
   []
   [./csv]
     type = CSV
-    show = 'stress_xx_gra_pp stress_xy_gra_pp stress_xz_gra_pp stress_yy_gra_pp stress_yz_gra_pp stress_zz_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_xz_cem_pp stress_yy_cem_pp stress_yz_cem_pp stress_zz_cem_pp'
+    show = 'stress_xx_gra_pp stress_xy_gra_pp stress_xz_gra_pp stress_yy_gra_pp stress_yz_gra_pp stress_zz_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_xz_cem_pp stress_yy_cem_pp stress_yz_cem_pp stress_zz_cem_pp
+            strain_xx_gra_pp strain_xy_gra_pp strain_xz_gra_pp strain_yy_gra_pp strain_yz_gra_pp strain_zz_gra_pp strain_xx_cem_pp strain_xy_cem_pp strain_xz_cem_pp strain_yy_cem_pp strain_yz_cem_pp strain_zz_cem_pp'
   [../]
 []
