@@ -508,10 +508,6 @@ L_poisson = []
 L_shear = []
 L_bulk = []
 
-# check if the map is known (TO DO: create a database)
-dict_loading['L_L_i_XYZ_not_used'] = []
-dict_loading['L_XYZ_used'] = None
-
 # iteration on time
 for iteration in range(last_j+1):
     print(iteration+1,'/', last_j+1)
