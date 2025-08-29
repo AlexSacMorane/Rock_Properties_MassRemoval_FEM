@@ -250,8 +250,9 @@
   [console]
     type = Console
     execute_on = 'nonlinear'
-    max_rows = 5
-    show = 'strain_zz_gra_pp strain_zz_cem_pp stress_zz_gra_pp stress_zz_cem_pp'
+    max_rows = 3
+    show = 'strain_xx_gra_pp strain_xx_cem_pp strain_yy_gra_pp strain_yy_cem_pp strain_zz_gra_pp strain_zz_cem_pp 
+            stress_xx_gra_pp stress_xx_cem_pp stress_yy_gra_pp stress_yy_cem_pp stress_zz_gra_pp stress_zz_cem_pp'
   []
   [./csv]
     type = CSV
