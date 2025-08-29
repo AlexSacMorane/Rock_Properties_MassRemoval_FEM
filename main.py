@@ -60,7 +60,7 @@ def index_to_str_4(j):
 plot_data_extracted = False
 plot_maps_bin = False
 plot_maps_pf = False
-plot_maps_bin_output = True
+plot_maps_bin_output = False
 
 #-------------------------------------------------------------------------------
 # Preparation
@@ -470,11 +470,11 @@ young_grain = 1
 poisson_grain = 0.3
 
 # cement
-young_cement = young_grain/5
+young_cement = 1
 poisson_cement = 0.3
 
 # pore
-young_pore = young_cement/100
+young_pore = 0.01
 poisson_pore = 0.3
 
 # resolution
