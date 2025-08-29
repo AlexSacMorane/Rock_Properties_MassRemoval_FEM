@@ -392,7 +392,7 @@ def lsm_linear(L_y, L_x):
 
 #-------------------------------------------------------------------------------
 
-def Interpolate_compression_props(L_strain_zz, L_stress_zz):
+def Interpolate_compression_prop(L_strain_zz, L_stress_zz):
     '''
     Interpolate the mechanical properties from a compression test:
         - Young Modulus Y    
@@ -427,14 +427,14 @@ def Interpolate_triaxial_props(L_strain_xx, L_strain_yy, L_strain_zz, L_stress_z
     # interpolate function
     a, b, corr = lsm_linear(L_strain_xx, L_strain_zz)
     # print result
-    #print('\nYoung Modulus interpolation (y=ax+b):')
+    #print('\nPoisson Ratio interpolation (y=ax+b):')
     #print('a:', a, 'b:', b, 'cor:', corr)
     # save parameter
     PoissonRatioSample_xz = -a
     # interpolate function
     a, b, corr = lsm_linear(L_strain_yy, L_strain_zz)
     # print result
-    #print('\nYoung Modulus interpolation (y=ax+b):')
+    #print('\nPoisson Ratio interpolation (y=ax+b):')
     #print('a:', a, 'b:', b, 'cor:', corr)
     # save parameter
     PoissonRatioSample_yz = -a
@@ -455,7 +455,7 @@ def Interpolate_shearing_prop(L_strain, L_stress_xy):
 
 #-------------------------------------------------------------------------------
 
-def Interpolate_isotropic_prop(L_strain):
+def Interpolate_isotropic_prop(L_strain_xx, L_strain_yy, L_strain_zz, L_mean_stress):
     '''
     Interpolate the mechanical propertie from an isotropic test:
         - Bulk Modulus K     

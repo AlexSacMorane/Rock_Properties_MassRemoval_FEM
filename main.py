@@ -557,7 +557,7 @@ for iteration in range(last_j+1):
         os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
         os.rename('FEM_Loading_Compression_out.e','e/FEM_Loading_Compression_out.e')
         # interpolate elastic parameters
-        YoungModulusSample = Interpolate_compression_props(L_strain, L_stress_zz)
+        YoungModulusSample = Interpolate_compression_prop(L_strain, L_stress_zz)
         # save
         if not 'triaxial' in dict_loading['loading']: # triaxial test has the priority
             L_young.append(YoungModulusSample)
