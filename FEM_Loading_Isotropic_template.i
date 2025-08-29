@@ -1,101 +1,112 @@
 [Mesh]
   [generated]
     type = GeneratedMeshGenerator
-    dim = 2
+    dim = 3
     nx = 
     ny = 
+    nz = 
     xmin = 
     xmax = 
     ymin = 
     ymax = 
+    zmin = 
+    zmax = 
   []
   # assign three subdomains
   [sub_domains]
     input = generated
     type = ImageSubdomainGenerator
-    file = microstructure.png
+    file_base = data/microstructure
+    file_suffix = 'png'
     component = 0
   []
 []
 
 [GlobalParams]
-  displacements = 'disp_x disp_y'
+  displacements = 'disp_x disp_y disp_z'
 []
 
 [Modules/TensorMechanics/Master]
   [all]
     add_variables = true
-    generate_output = 'stress_xx stress_xy stress_yx stress_yy'
+    generate_output = 'stress_xx stress_xy stress_xz stress_yx stress_yy stress_yz stress_zx stress_zy stress_zz
+                       strain_xx strain_xy strain_xz strain_yx strain_yy strain_yz strain_zx strain_zy strain_zz'
   []
 []
 
 [BCs]
-  inactive =
-  [bottom_x]
+  [left_x]
     type = DirichletBC
     variable = disp_x
-    boundary = bottom
+    boundary = left 
     value = 0
+  []
+  [right_pressure]
+    type = FunctionNeumannBC
+    variable = disp_x
+    boundary = right
+    function = 
   []
   [bottom_y]
     type = DirichletBC
     variable = disp_y
-    boundary = bottom
+    boundary = bottom 
     value = 0
   []
-  [top_x]
-    type = FunctionDirichletBC
-    variable = disp_x
-    boundary = top
-    function =
-  []
   [top_y]
-    type = FunctionDirichletBC
+    type = FunctionNeumannBC
     variable = disp_y
     boundary = top
-    function =
+    function = 
   []
-  [./Periodic]
-    [./per_x_x]
-      variable = disp_x
-      auto_direction = 'x'
-    [../]
-    [./per_y_x]
-      variable = disp_y
-      auto_direction = 'x'
-    [../]
-  [../]
+  [back_z]
+    type = DirichletBC
+    variable = disp_z
+    boundary = back
+    value = 0
+  []
+  [front_pressure]
+    type = FunctionNeumannBC
+    variable = disp_z
+    boundary = front
+    function = 
+  []
 []
-
+  
 [Materials]
-  # H2O
-  [./H2O_elastic]
+  # pore
+  [./pore_elastic]
     type = ComputeIsotropicElasticityTensor
     youngs_modulus =
     poissons_ratio =
     block = 0
   [../]
-  [./H2O_stress_elastic]
+  [./pore_stress_elastic]
     type = ComputeLinearElasticStress
     block = 0
   [../]
-  # C3S
-  [./C3S_elastic]
+  # grain
+  [./grain_elastic]
     type = ComputeIsotropicElasticityTensor
     youngs_modulus =
     poissons_ratio =
     block = 1
   [../]
-  [./stress_elastic]
+  [./grain_stress_elastic]
     type = ComputeLinearElasticStress
     block = 1
   [../]
-  # CSH
-
-[]
-
-[UserObjects]
-
+  # cement
+  [./cement_elastic]
+    type = ComputeIsotropicElasticityTensor
+    youngs_modulus = 
+    poissons_ratio = 
+    block = 2
+  [../]
+  [./cement_stress_elastic]
+    type = ComputeLinearElasticStress
+    block = 2
+  [../]
 []
 
 [Preconditioning]
@@ -122,36 +133,126 @@
 []
 
 [Postprocessors]
-  # C3S
-  [stress_xx_C3S_pp]
+  # grain
+  [stress_xx_gra_pp]
     type = ElementAverageValue
     variable = stress_xx
     block = 1
   []
-  [stress_xy_C3S_pp]
+  [stress_xy_gra_pp]
     type = ElementAverageValue
     variable = stress_xy
     block = 1
   []
-  [stress_yy_C3S_pp]
+  [stress_xz_gra_pp]
+    type = ElementAverageValue
+    variable = stress_xz
+    block = 1
+  []
+  [stress_yy_gra_pp]
     type = ElementAverageValue
     variable = stress_yy
     block = 1
   []
-  # CSH
-  [stress_xx_CSH_pp]
+  [stress_yz_gra_pp]
+    type = ElementAverageValue
+    variable = stress_yz
+    block = 1
+  []
+  [stress_zz_gra_pp]
+    type = ElementAverageValue
+    variable = stress_zz
+    block = 1
+  []
+  [strain_xx_gra_pp]
+    type = ElementAverageValue
+    variable = strain_xx
+    block = 1
+  []
+  [strain_xy_gra_pp]
+    type = ElementAverageValue
+    variable = strain_xy
+    block = 1
+  []
+  [strain_xz_gra_pp]
+    type = ElementAverageValue
+    variable = strain_xz
+    block = 1
+  []
+  [strain_yy_gra_pp]
+    type = ElementAverageValue
+    variable = strain_yy
+    block = 1
+  []
+  [strain_yz_gra_pp]
+    type = ElementAverageValue
+    variable = strain_yz
+    block = 1
+  []
+  [strain_zz_gra_pp]
+    type = ElementAverageValue
+    variable = strain_zz
+    block = 1
+  []
+  # cement
+  [stress_xx_cem_pp]
     type = ElementAverageValue
     variable = stress_xx
     block = 2
   []
-  [stress_xy_CSH_pp]
+  [stress_xy_cem_pp]
     type = ElementAverageValue
     variable = stress_xy
     block = 2
   []
-  [stress_yy_CSH_pp]
+  [stress_xz_cem_pp]
+    type = ElementAverageValue
+    variable = stress_xz
+    block = 2
+  []
+  [stress_yy_cem_pp]
     type = ElementAverageValue
     variable = stress_yy
+    block = 2
+  []
+  [stress_yz_cem_pp]
+    type = ElementAverageValue
+    variable = stress_yz
+    block = 2
+  []
+  [stress_zz_cem_pp]
+    type = ElementAverageValue
+    variable = stress_zz
+    block = 2
+  []
+  [strain_xx_cem_pp]
+    type = ElementAverageValue
+    variable = strain_xx
+    block = 2
+  []
+  [strain_xy_cem_pp]
+    type = ElementAverageValue
+    variable = strain_xy
+    block = 2
+  []
+  [strain_xz_cem_pp]
+    type = ElementAverageValue
+    variable = strain_xz
+    block = 2
+  []
+  [strain_yy_cem_pp]
+    type = ElementAverageValue
+    variable = strain_yy
+    block = 2
+  []
+  [strain_yz_cem_pp]
+    type = ElementAverageValue
+    variable = strain_yz
+    block = 2
+  []
+  [strain_zz_cem_pp]
+    type = ElementAverageValue
+    variable = strain_zz
     block = 2
   []
 []
@@ -161,9 +262,13 @@
   [console]
     type = Console
     execute_on = 'nonlinear'
+    max_rows = 3
+    show = 'strain_xx_gra_pp strain_xx_cem_pp strain_yy_gra_pp strain_yy_cem_pp strain_zz_gra_pp strain_zz_cem_pp 
+            stress_xx_gra_pp stress_xx_cem_pp stress_yy_gra_pp stress_yy_cem_pp stress_zz_gra_pp stress_zz_cem_pp'
   []
   [./csv]
     type = CSV
-    show = 'stress_xx_C3S_pp stress_xy_C3S_pp stress_yy_C3S_pp stress_xx_CSH_pp stress_xy_CSH_pp stress_yy_CSH_pp'
+    show = 'stress_xx_gra_pp stress_xy_gra_pp stress_xz_gra_pp stress_yy_gra_pp stress_yz_gra_pp stress_zz_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_xz_cem_pp stress_yy_cem_pp stress_yz_cem_pp stress_zz_cem_pp
+            strain_xx_gra_pp strain_xy_gra_pp strain_xz_gra_pp strain_yy_gra_pp strain_yz_gra_pp strain_zz_gra_pp strain_xx_cem_pp strain_xy_cem_pp strain_xz_cem_pp strain_yy_cem_pp strain_yz_cem_pp strain_zz_cem_pp'
   [../]
 []
