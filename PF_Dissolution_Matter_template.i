@@ -156,6 +156,7 @@
     type = Console
     execute_on = 'nonlinear'
     all_variable_norms = true
+    max_rows = 5
   []
   [./csv]
     type = CSV
