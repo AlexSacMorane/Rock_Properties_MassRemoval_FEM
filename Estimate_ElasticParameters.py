@@ -102,9 +102,9 @@ def Write_compression_i(x_L, y_L, z_L, compression_strain, young_pore, poisson_p
         if j == 11:
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
         if j == 12:
-            line = line[:-1] + ' ' + str(min(y_L)) + '\n'
+            line = line[:-1] + ' ' + str(min(z_L)) + '\n'
         if j == 13:
-            line = line[:-1] + ' ' + str(max(y_L)) + '\n'
+            line = line[:-1] + ' ' + str(max(z_L)) + '\n'
         if j == 48:
             line = line[:-1] + ' ' + str(compression_strain*(max(z_L)-min(z_L))) + '*t\n'
         if j == 94:
@@ -156,9 +156,9 @@ def Write_triaxial_i(x_L, y_L, z_L, triaxial_stress, young_pore, poisson_pore, y
         if j == 11:
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
         if j == 12:
-            line = line[:-1] + ' ' + str(min(y_L)) + '\n'
+            line = line[:-1] + ' ' + str(min(z_L)) + '\n'
         if j == 13:
-            line = line[:-1] + ' ' + str(max(y_L)) + '\n'
+            line = line[:-1] + ' ' + str(max(z_L)) + '\n'
         if j == 48:
             line = line[:-1] + " '" + str(triaxial_stress) + "*t'\n"
         if j == 68:
