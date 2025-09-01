@@ -499,6 +499,15 @@ if 'triaxial' in loading:
 if 'isotropic' in loading:
     dict_loading['isotropic_strain'] = -0.1/3
 
+# consider the criteria on the maximum number of iterations for pp
+max_ite = 10
+if last_j > max_ite:
+    f_pp = last_j/max_ite
+else :
+    f_pp = 1
+# post proccess index
+i_pp = 0
+
 # save
 dict_loading['young_grain'] = young_grain
 dict_loading['poisson_grain'] = poisson_grain
@@ -516,6 +525,7 @@ dict_loading['loading'] = loading
 #-------------------------------------------------------------------------------
 
 # initialization
+L_vol_cement = []
 L_young = []
 L_poisson = []
 L_shear = []
@@ -523,106 +533,113 @@ L_bulk = []
 
 # iteration on time
 for iteration in range(last_j+1):
-    print(iteration+1,'/', last_j+1)
 
-    # Read vtk output 
-    M_grain, M_cement = Read_PF_vtk(index_to_str_3(iteration), dict_loading, dict_pf)
+    # not all the iteration 
+    if iteration >= f_pp*i_pp:
+        print(iteration+1,'/', last_j+1)
+        i_pp = i_pp + 1
 
-    # Prepare the MOOSE simulation
-    create_folder('data')
-    create_folder('i')
-    create_folder('csv')
-    create_folder('e')
-    if plot_maps_bin_output:
-        create_folder('output/microstructure_'+index_to_str_3(iteration))
-
-    # Generate the png file for Moose FEM simulation
-    Generate_png(M_grain, M_cement, plot_maps_bin_output, index_to_str_3(iteration))
-
-    if 'compression' in dict_loading['loading']:
-        # Write the compression .i file
-        Write_compression_i(x_L, y_L, z_L, dict_loading['compression_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
-        # Run fem MOOSE simulation
-        os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Compression.i')
-        
-        # Read the csv output
-        L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
-        L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Compression_csv.csv', M_grain, M_cement)
-        # compute the strain
-        L_strain = []
-        for i_strain in range(len(L_stress_zz)):
-            L_strain.append(i_strain/(len(L_stress_zz)-1)*dict_loading['compression_strain']*(max(z_L)-min(z_L)))
-        # sort .i, .csv, .e files
-        os.rename('FEM_Loading_Compression.i','i/FEM_Loading_Compression.i')
-        os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
-        os.rename('FEM_Loading_Compression_out.e','e/FEM_Loading_Compression_out.e')
-        # interpolate elastic parameters
-        YoungModulusSample = Interpolate_compression_prop(L_strain, L_stress_zz)
+        # Read vtk output 
+        M_grain, M_cement = Read_PF_vtk(index_to_str_3(iteration), dict_loading, dict_pf)
         # save
-        if not 'triaxial' in dict_loading['loading']: # triaxial test has the priority
+        L_vol_cement.append(np.sum(M_cement))
+
+        # Prepare the MOOSE simulation
+        create_folder('data')
+        create_folder('i')
+        create_folder('csv')
+        create_folder('e')
+        if plot_maps_bin_output:
+            create_folder('output/microstructure_'+index_to_str_3(iteration))
+
+        # Generate the png file for Moose FEM simulation
+        Generate_png(M_grain, M_cement, plot_maps_bin_output, index_to_str_3(iteration))
+
+        if 'compression' in dict_loading['loading']:
+            # Write the compression .i file
+            Write_compression_i(x_L, y_L, z_L, dict_loading['compression_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+            # Run fem MOOSE simulation
+            os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Compression.i')
+            
+            # Read the csv output
+            L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
+            L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Compression_csv.csv', M_grain, M_cement)
+            # compute the strain
+            L_strain = []
+            for i_strain in range(len(L_stress_zz)):
+                L_strain.append(i_strain/(len(L_stress_zz)-1)*dict_loading['compression_strain']*(max(z_L)-min(z_L)))
+            # sort .i, .csv, .e files
+            os.rename('FEM_Loading_Compression.i','i/FEM_Loading_Compression.i')
+            os.rename('FEM_Loading_Compression_csv.csv','csv/FEM_Loading_Compression_csv.csv')
+            os.rename('FEM_Loading_Compression_out.e','e/FEM_Loading_Compression_out.e')
+            # interpolate elastic parameters
+            YoungModulusSample = Interpolate_compression_prop(L_strain, L_stress_zz)
+            # save
+            if not 'triaxial' in dict_loading['loading']: # triaxial test has the priority
+                L_young.append(YoungModulusSample)
+
+        if 'triaxial' in dict_loading['loading']:
+            # Write the triaxial .i file
+            Write_triaxial_i(x_L, y_L, z_L, dict_loading['triaxial_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+            # Run fem MOOSE simulation
+            os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Triaxial.i')
+            
+            # Read the csv output
+            L_disp_x, L_disp_y, L_disp_z,\
+            L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
+            L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Triaxial_csv.csv', M_grain, M_cement)
+            # pp data
+            L_strain_x = []
+            L_strain_y = []
+            L_strain_z = []
+            for i_disp in range(len(L_disp_z)):
+                L_strain_x.append(L_disp_x[i_disp]/(max(x_L)-min(x_L)))
+                L_strain_y.append(L_disp_y[i_disp]/(max(y_L)-min(y_L)))
+                L_strain_z.append(L_disp_z[i_disp]/(max(z_L)-min(z_L)))
+            # sort .i, .csv, .e files
+            os.rename('FEM_Loading_Triaxial.i','i/FEM_Loading_Triaxial.i')
+            os.rename('FEM_Loading_Triaxial_csv.csv','csv/FEM_Loading_Triaxial_csv.csv')
+            os.rename('FEM_Loading_Triaxial_out.e','e/FEM_Loading_Triaxial_out.e')
+            # interpolate elastic parameters
+            YoungModulusSample, ShearModulusSample, PoissonRatioSample = Interpolate_triaxial_props(L_strain_x, L_strain_y, L_strain_z, L_stress_zz)
+            # save
             L_young.append(YoungModulusSample)
+            L_shear.append(ShearModulusSample)
+            L_poisson.append(PoissonRatioSample)
 
-    if 'triaxial' in dict_loading['loading']:
-        # Write the triaxial .i file
-        Write_triaxial_i(x_L, y_L, z_L, dict_loading['triaxial_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
-        # Run fem MOOSE simulation
-        os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Triaxial.i')
-        
-        # Read the csv output
-        L_disp_x, L_disp_y, L_disp_z,\
-        L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
-        L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Triaxial_csv.csv', M_grain, M_cement)
-        # pp data
-        L_strain_x = []
-        L_strain_y = []
-        L_strain_z = []
-        for i_disp in range(len(L_disp_z)):
-            L_strain_x.append(L_disp_x[i_disp]/(max(x_L)-min(x_L)))
-            L_strain_y.append(L_disp_y[i_disp]/(max(y_L)-min(y_L)))
-            L_strain_z.append(L_disp_z[i_disp]/(max(z_L)-min(z_L)))
-        # sort .i, .csv, .e files
-        os.rename('FEM_Loading_Triaxial.i','i/FEM_Loading_Triaxial.i')
-        os.rename('FEM_Loading_Triaxial_csv.csv','csv/FEM_Loading_Triaxial_csv.csv')
-        os.rename('FEM_Loading_Triaxial_out.e','e/FEM_Loading_Triaxial_out.e')
-        # interpolate elastic parameters
-        YoungModulusSample, ShearModulusSample, PoissonRatioSample = Interpolate_triaxial_props(L_strain_x, L_strain_y, L_strain_z, L_stress_zz)
-        # save
-        L_young.append(YoungModulusSample)
-        L_shear.append(ShearModulusSample)
-        L_poisson.append(PoissonRatioSample)
+        # TO DO same for shearing and isotropic
+        if 'shearing' in dict_loading['loading']:
+            pass
 
-    # TO DO same for shearing and isotropic
-    if 'shearing' in dict_loading['loading']:
-        pass
-
-    if 'isotropic' in dict_loading['loading']:
-        # Write the isotropic .i file
-        Write_isotropic_i(x_L, y_L, z_L, dict_loading['isotropic_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
-        # Run fem MOOSE simulation
-        os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Isotropic.i')
-        
-        # Read the csv output
-        L_disp_x, L_disp_y, L_disp_z,\
-        L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
-        L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Isotropic_csv.csv', M_grain, M_cement)
-        # compute the stress
-        # pp data
-        L_vol_strain = []
-        for i_disp in range(len(L_disp_z)):
-            strain_x_i = L_disp_x[i_disp]/(max(x_L)-min(x_L))
-            strain_y_i = L_disp_y[i_disp]/(max(y_L)-min(y_L))
-            strain_z_i = L_disp_z[i_disp]/(max(z_L)-min(z_L))
-            L_vol_strain.append(strain_x_i + strain_y_i + strain_z_i)
-        # sort .i, .csv, .e files
-        os.rename('FEM_Loading_Isotropic.i','i/FEM_Loading_Isotropic.i')
-        os.rename('FEM_Loading_Isotropic_csv.csv','csv/FEM_Loading_Isotropic_csv.csv')
-        os.rename('FEM_Loading_Isotropic_out.e','e/FEM_Loading_Isotropic_out.e')
-        # interpolate elastic parameters
-        BulkModulusSample = Interpolate_isotropic_prop(L_stress_xx, L_stress_yy, L_stress_zz, L_vol_strain)
-        # save
-        L_bulk.append(BulkModulusSample)
+        if 'isotropic' in dict_loading['loading']:
+            # Write the isotropic .i file
+            Write_isotropic_i(x_L, y_L, z_L, dict_loading['isotropic_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+            # Run fem MOOSE simulation
+            os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Isotropic.i')
+            
+            # Read the csv output
+            L_disp_x, L_disp_y, L_disp_z,\
+            L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
+            L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Isotropic_csv.csv', M_grain, M_cement)
+            # compute the stress
+            # pp data
+            L_vol_strain = []
+            for i_disp in range(len(L_disp_z)):
+                strain_x_i = L_disp_x[i_disp]/(max(x_L)-min(x_L))
+                strain_y_i = L_disp_y[i_disp]/(max(y_L)-min(y_L))
+                strain_z_i = L_disp_z[i_disp]/(max(z_L)-min(z_L))
+                L_vol_strain.append(strain_x_i + strain_y_i + strain_z_i)
+            # sort .i, .csv, .e files
+            os.rename('FEM_Loading_Isotropic.i','i/FEM_Loading_Isotropic.i')
+            os.rename('FEM_Loading_Isotropic_csv.csv','csv/FEM_Loading_Isotropic_csv.csv')
+            os.rename('FEM_Loading_Isotropic_out.e','e/FEM_Loading_Isotropic_out.e')
+            # interpolate elastic parameters
+            BulkModulusSample = Interpolate_isotropic_prop(L_stress_xx, L_stress_yy, L_stress_zz, L_vol_strain)
+            # save
+            L_bulk.append(BulkModulusSample)
 
 # save
+dict_loading['L_vol_cement'] = L_vol_cement
 dict_loading['L_young'] = L_young
 dict_loading['L_poisson'] = L_poisson
 dict_loading['L_shear'] = L_shear
@@ -632,17 +649,24 @@ dict_loading['L_bulk'] = L_bulk
 # Plot evolution elasic parameters
 #-------------------------------------------------------------------------------
 
+# pp data
+L_mass_removal = []
+for i_vol_cement in range(len(L_vol_cement)):
+    L_mass_removal.append(L_vol_cement[0]-L_vol_cement[i_vol_cement])
+
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2,ncols=2,figsize=(16,9))
-ax1.plot(L_young)
-ax2.plot(L_poisson)
-ax3.plot(L_shear)
-ax4.plot(L_bulk)
-ax1.set_title('Young modulus (-)')
-ax2.set_title('Poisson ratio (-)')
-ax3.set_title('Shear modulus(-)')
-ax4.set_title('Bulk modulus (-)')
+ax1.plot(L_mass_removal, L_young)
+ax2.plot(L_mass_removal, L_poisson)
+ax3.plot(L_mass_removal, L_shear)
+ax4.plot(L_mass_removal, L_bulk)
+ax1.set_ylabel('Young modulus (-)')
+ax2.set_ylabel('Poisson ratio (-)')
+ax3.set_ylabel('Shear modulus (-)')
+ax4.set_ylabel('Bulk modulus (-)')
+ax3.set_xlabel('Mass removal (-)')
+ax4.set_xlabel('Mass removal (-)')
 fig.tight_layout()
-fig.savefig('output/evol_time_elastic_parameters.png')
+fig.savefig('output/evol_mass_removal_elastic_parameters.png')
 plt.close(fig)
 
 #-------------------------------------------------------------------------------
