@@ -41,8 +41,8 @@
     boundary = back
     value = 0
   []
-  [front_z]
-    type = FunctionDirichletBC
+  [front_pressure]
+    type = FunctionNeumannBC
     variable = disp_z
     boundary = front
     function = 
@@ -53,22 +53,10 @@
     boundary = left 
     value = 0
   []
-  [right_dx]
-    type = NeumannBC
-    variable = disp_x
-    boundary = right 
-    value = 0
-  []
   [bottom_y]
     type = DirichletBC
     variable = disp_y
     boundary = bottom 
-    value = 0
-  []
-  [top_dy]
-    type = NeumannBC
-    variable = disp_y
-    boundary = top 
     value = 0
   []
 []
