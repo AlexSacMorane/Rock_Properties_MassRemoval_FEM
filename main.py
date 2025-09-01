@@ -78,6 +78,7 @@ create_folder('e')
 create_folder('i')
 create_folder('vtk')
 create_folder('csv')
+create_folder('dict')
 
 # dictionnaries
 dict_pf = {
@@ -672,6 +673,12 @@ plt.close(fig)
 #-------------------------------------------------------------------------------
 # Close
 #-------------------------------------------------------------------------------
+
+# save dicts
+with open('dict/dict_pf', 'wb') as handle:
+    pickle.dump(dict_pf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+with open('dict/dict_loading', 'wb') as handle:
+    pickle.dump(dict_loading, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # delete files
 shutil.rmtree('e')
