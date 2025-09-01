@@ -588,6 +588,7 @@ for iteration in range(last_j+1):
         YoungModulusSample, ShearModulusSample, PoissonRatioSample = Interpolate_triaxial_props(L_strain_x, L_strain_y, L_strain_z, L_stress_zz)
         # save
         L_young.append(YoungModulusSample)
+        L_shear.append(ShearModulusSample)
         L_poisson.append(PoissonRatioSample)
 
     # TO DO same for shearing and isotropic
