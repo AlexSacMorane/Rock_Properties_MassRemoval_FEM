@@ -497,7 +497,7 @@ if 'triaxial' in loading:
     dict_loading['triaxial_strain'] = -0.1
 # define compression
 if 'isotropic' in loading:
-    dict_loading['isotropic_stress'] = -0.02
+    dict_loading['isotropic_strain'] = -0.1/3
 
 # save
 dict_loading['young_grain'] = young_grain
@@ -591,7 +591,7 @@ for iteration in range(last_j+1):
 
     if 'isotropic' in dict_loading['loading']:
         # Write the isotropic .i file
-        Write_isotropic_i(x_L, y_L, z_L, dict_loading['isotropic_stress'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
+        Write_isotropic_i(x_L, y_L, z_L, dict_loading['isotropic_strain'], young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem)
         # Run fem MOOSE simulation
         os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Isotropic.i')
         
@@ -599,15 +599,15 @@ for iteration in range(last_j+1):
         L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
         L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Isotropic_csv.csv', M_grain, M_cement)
         # compute the stress
-        L_stress = []
-        for i_stress in range(len(L_strain_zz)):
-            L_stress.append(i_stress/(len(L_strain_zz)-1)*dict_loading['isotropic_stress'])
+        L_strain = []
+        for i_strain in range(len(L_stress_xx)):
+            L_strain.append(i_strain/(len(L_stress_xx)-1)*dict_loading['isotropic_strain']*3)
         # sort .i, .csv, .e files
         os.rename('FEM_Loading_Isotropic.i','i/FEM_Loading_Isotropic.i')
         os.rename('FEM_Loading_Isotropic_csv.csv','csv/FEM_Loading_Isotropic_csv.csv')
         os.rename('FEM_Loading_Isotropic_out.e','e/FEM_Loading_Isotropic_out.e')
         # interpolate elastic parameters
-        BulkModulusSample = Interpolate_isotropic_prop(L_strain_xx, L_strain_yy, L_strain_zz, L_stress)
+        BulkModulusSample = Interpolate_isotropic_prop(L_stress_xx, L_stress_yy, L_stress_zz, L_strain)
         # save
         L_bulk.append(BulkModulusSample)
         

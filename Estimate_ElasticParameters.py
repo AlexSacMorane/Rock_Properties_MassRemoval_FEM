@@ -135,7 +135,7 @@ def Write_triaxial_stress_i(x_L, y_L, z_L, triaxial_stress, young_pore, poisson_
     The sample is under triaxial condition (stress control).
     '''
     file_to_write = open('FEM_Loading_Triaxial.i','w')
-    file_to_read = open('FEM_Loading_Triaxial_template.i','r')
+    file_to_read = open('FEM_Loading_Triaxial_stress_template.i','r')
     lines = file_to_read.readlines()
     file_to_read.close()
     j = 0
@@ -247,14 +247,14 @@ def Write_shearing_i():
 
 #-------------------------------------------------------------------------------
 
-def Write_isotropic_i(x_L, y_L, z_L, isotropic_stress, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
+def Write_isotropic_stress_i(x_L, y_L, z_L, isotropic_stress, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
     '''
     Generate from a template the input file for Moose simulation.
 
-    The sample is under isotropic loading.
+    The sample is under isotropic loading (stress control).
     '''
     file_to_write = open('FEM_Loading_Isotropic.i','w')
-    file_to_read = open('FEM_Loading_Isotropic_template.i','r')
+    file_to_read = open('FEM_Loading_Isotropic_stress_template.i','r')
     lines = file_to_read.readlines()
     file_to_read.close()
     j = 0
@@ -280,6 +280,64 @@ def Write_isotropic_i(x_L, y_L, z_L, isotropic_stress, young_pore, poisson_pore,
             line = line[:-1] + ' ' + str(max(y_L)) + '\n'
         if j == 48 or j == 60 or j == 72:
             line = line[:-1] + " '" + str(isotropic_stress) + "*t'\n"
+        if j == 80:
+            line = line[:-1] + ' ' + str(young_pore) + '\n'
+        if j == 81:
+            line = line[:-1] + ' ' + str(poisson_pore) + '\n'
+        if j == 91:
+            line = line[:-1] + ' ' + str(young_grain) + '\n'
+        if j == 92:
+            line = line[:-1] + ' ' + str(poisson_grain) + '\n'
+        if j == 102:
+            line = line[:-1] + ' ' + str(young_cement) + '\n'
+        if j == 103:
+            line = line[:-1] + ' ' + str(poisson_cement) + '\n'
+        if j == 123 or j == 125 or j == 126:
+            line = line[:-1] + ' ' + str(crit_res_fem) + '\n'
+        if j == 132:
+            line = line[:-1] + ' ' + str(dt_fem) + '\n'
+        file_to_write.write(line)
+    file_to_write.close()
+
+#-------------------------------------------------------------------------------
+
+def Write_isotropic_i(x_L, y_L, z_L, isotropic_strain, young_pore, poisson_pore, young_grain, poisson_grain, young_cement, poisson_cement, crit_res_fem, dt_fem):
+    '''
+    Generate from a template the input file for Moose simulation.
+
+    The sample is under isotropic loading (displacement control).
+    '''
+    file_to_write = open('FEM_Loading_Isotropic.i','w')
+    file_to_read = open('FEM_Loading_Isotropic_template.i','r')
+    lines = file_to_read.readlines()
+    file_to_read.close()
+    j = 0
+    for line in lines :
+        j = j + 1
+        if j == 5:
+            line = line[:-1] + ' ' + str(int(len(x_L))) + '\n'
+        if j == 6:
+            line = line[:-1] + ' ' + str(int(len(y_L))) + '\n'
+        if j == 7:
+            line = line[:-1] + ' ' + str(int(len(z_L))) + '\n'
+        if j == 8:
+            line = line[:-1] + ' ' + str(min(x_L)) + '\n'
+        if j == 9:
+            line = line[:-1] + ' ' + str(max(x_L)) + '\n'
+        if j == 10:
+            line = line[:-1] + ' ' + str(min(y_L)) + '\n'
+        if j == 11:
+            line = line[:-1] + ' ' + str(max(y_L)) + '\n'
+        if j == 12:
+            line = line[:-1] + ' ' + str(min(z_L)) + '\n'
+        if j == 13:
+            line = line[:-1] + ' ' + str(max(z_L)) + '\n'
+        if j == 48:
+            line = line[:-1] + " '" + str(isotropic_strain*(max(x_L)-min(x_L))) + "*t'\n"
+        if j == 60:
+            line = line[:-1] + " '" + str(isotropic_strain*(max(y_L)-min(y_L))) + "*t'\n"
+        if j == 72:
+            line = line[:-1] + " '" + str(isotropic_strain*(max(z_L)-min(z_L))) + "*t'\n"
         if j == 80:
             line = line[:-1] + ' ' + str(young_pore) + '\n'
         if j == 81:
@@ -509,17 +567,17 @@ def Interpolate_shearing_prop(L_strain, L_stress_xy):
 
 #-------------------------------------------------------------------------------
 
-def Interpolate_isotropic_prop(L_strain_xx, L_strain_yy, L_strain_zz, L_mean_stress):
+def Interpolate_isotropic_prop(L_stress_xx, L_stress_yy, L_stress_zz, L_vol_strain):
     '''
     Interpolate the mechanical propertie from an isotropic test:
         - Bulk Modulus K     
     ''' 
     # pp data
-    L_volumetric_strain = []
-    for i_strain in range(len(L_strain_xx)):
-        L_volumetric_strain.append(L_strain_xx[i_strain]+L_strain_yy[i_strain]+L_strain_zz[i_strain])    
+    L_mean_stress = []
+    for i_stress in range(len(L_stress_xx)):
+        L_mean_stress.append((L_stress_xx[i_stress]+L_stress_yy[i_stress]+L_stress_zz[i_stress])/3)   
     # interpolate function
-    a, b, corr = lsm_linear(L_mean_stress, L_volumetric_strain)
+    a, b, corr = lsm_linear(L_mean_stress, L_vol_strain)
     # print result
     #print('\nBulk Modulus interpolation (y=ax+b):')
     #print('a:', a, 'b:', b, 'cor:', corr)

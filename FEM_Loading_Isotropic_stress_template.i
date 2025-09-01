@@ -35,16 +35,16 @@
 []
 
 [BCs]
-  [left_x]  
+  [left_x]
     type = DirichletBC
     variable = disp_x
     boundary = left 
     value = 0
   []
-  [right_x]
-    type = FunctionDirichletBC
+  [right_pressure]
+    type = FunctionNeumannBC
     variable = disp_x
-    boundary = right 
+    boundary = right
     function = 
   []
   [bottom_y]
@@ -54,9 +54,9 @@
     value = 0
   []
   [top_y]
-    type = FunctionDirichletBC
+    type = FunctionNeumannBC
     variable = disp_y
-    boundary = top 
+    boundary = top
     function = 
   []
   [back_z]
@@ -65,8 +65,8 @@
     boundary = back
     value = 0
   []
-  [front_z]
-    type = FunctionDirichletBC
+  [front_pressure]
+    type = FunctionNeumannBC
     variable = disp_z
     boundary = front
     function = 
