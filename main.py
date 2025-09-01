@@ -585,7 +585,7 @@ for iteration in range(last_j+1):
         os.rename('FEM_Loading_Triaxial_csv.csv','csv/FEM_Loading_Triaxial_csv.csv')
         os.rename('FEM_Loading_Triaxial_out.e','e/FEM_Loading_Triaxial_out.e')
         # interpolate elastic parameters
-        YoungModulusSample, PoissonRatioSample = Interpolate_triaxial_props(L_strain_xx, L_strain_yy, L_strain, L_stress_zz)
+        YoungModulusSample, ShearModulusSample, PoissonRatioSample = Interpolate_triaxial_props(L_strain_x, L_strain_y, L_strain_z, L_stress_zz)
         # save
         L_young.append(YoungModulusSample)
         L_poisson.append(PoissonRatioSample)

@@ -546,6 +546,18 @@ def Interpolate_triaxial_props(L_strain_xx, L_strain_yy, L_strain_zz, L_stress_z
     # save parameter
     YoungModulusSample = a
 
+    #pp data
+    L_dev_strain = []
+    for i_strain in range(len(L_strain_xx)):
+        L_dev_strain.append(2/3*(L_strain_zz[i_strain]-L_strain_xx[i_strain] + L_strain_zz[i_strain]-L_strain_yy[i_strain])/2)
+    # interpolate function
+    a, b, corr = lsm_linear(L_stress_zz, L_dev_strain)
+    # print result
+    #print('\nShear Modulus interpolation (y=ax+b):')
+    #print('a:', a, 'b:', b, 'cor:', corr)
+    # save parameter
+    ShearModulusSample = a/3
+
     # interpolate function
     a, b, corr = lsm_linear(L_strain_xx, L_strain_zz)
     # print result
@@ -563,7 +575,7 @@ def Interpolate_triaxial_props(L_strain_xx, L_strain_yy, L_strain_zz, L_stress_z
     # compute the mean
     PoissonRatioSample = PoissonRatioSample_xz*0.5 + PoissonRatioSample_yz*0.5
 
-    return YoungModulusSample, PoissonRatioSample
+    return YoungModulusSample, ShearModulusSample, PoissonRatioSample
     
 #-------------------------------------------------------------------------------
 
