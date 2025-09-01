@@ -569,12 +569,17 @@ for iteration in range(last_j+1):
         os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Triaxial.i')
         
         # Read the csv output
+        L_disp_x, L_disp_y, L_disp_z,\
         L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
         L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Triaxial_csv.csv', M_grain, M_cement)
-        # compute the stress
-        L_strain = []
-        for i_strain in range(len(L_stress_zz)):
-            L_strain.append(i_strain/(len(L_stress_zz)-1)*dict_loading['triaxial_strain'])
+        # pp data
+        L_strain_x = []
+        L_strain_y = []
+        L_strain_z = []
+        for i_disp in range(len(L_disp_z)):
+            L_strain_x.append(L_disp_x[i_disp]/(max(x_L)-min(x_L)))
+            L_strain_y.append(L_disp_y[i_disp]/(max(y_L)-min(y_L)))
+            L_strain_z.append(L_disp_z[i_disp]/(max(z_L)-min(z_L)))
         # sort .i, .csv, .e files
         os.rename('FEM_Loading_Triaxial.i','i/FEM_Loading_Triaxial.i')
         os.rename('FEM_Loading_Triaxial_csv.csv','csv/FEM_Loading_Triaxial_csv.csv')
@@ -596,21 +601,25 @@ for iteration in range(last_j+1):
         os.system('mpiexec -n '+str(n_proc)+' ~/projects/moose/modules/solid_mechanics/solid_mechanics-opt -i FEM_Loading_Isotropic.i')
         
         # Read the csv output
+        L_disp_x, L_disp_y, L_disp_z,\
         L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz,\
         L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz = Read_FEM_csv('FEM_Loading_Isotropic_csv.csv', M_grain, M_cement)
         # compute the stress
-        L_strain = []
-        for i_strain in range(len(L_stress_xx)):
-            L_strain.append(i_strain/(len(L_stress_xx)-1)*dict_loading['isotropic_strain']*3)
+        # pp data
+        L_vol_strain = []
+        for i_disp in range(len(L_disp_z)):
+            strain_x_i = L_disp_x[i_disp]/(max(x_L)-min(x_L))
+            strain_y_i = L_disp_y[i_disp]/(max(y_L)-min(y_L))
+            strain_z_i = L_disp_z[i_disp]/(max(z_L)-min(z_L))
+            L_vol_strain.append(strain_x_i + strain_y_i + strain_z_i)
         # sort .i, .csv, .e files
         os.rename('FEM_Loading_Isotropic.i','i/FEM_Loading_Isotropic.i')
         os.rename('FEM_Loading_Isotropic_csv.csv','csv/FEM_Loading_Isotropic_csv.csv')
         os.rename('FEM_Loading_Isotropic_out.e','e/FEM_Loading_Isotropic_out.e')
         # interpolate elastic parameters
-        BulkModulusSample = Interpolate_isotropic_prop(L_stress_xx, L_stress_yy, L_stress_zz, L_strain)
+        BulkModulusSample = Interpolate_isotropic_prop(L_stress_xx, L_stress_yy, L_stress_zz, L_vol_strain)
         # save
         L_bulk.append(BulkModulusSample)
-        
 
 # save
 dict_loading['L_young'] = L_young

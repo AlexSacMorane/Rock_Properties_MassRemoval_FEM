@@ -368,6 +368,11 @@ def Read_FEM_csv(namefile, M_grain, M_cement):
     f.close()
     # init data
     L_time = []
+
+    L_disp_x = []
+    L_disp_y = []
+    L_disp_z = []
+
     L_stress_xx_grain = []
     L_stress_xy_grain = []
     L_stress_xz_grain = []
@@ -420,34 +425,38 @@ def Read_FEM_csv(namefile, M_grain, M_cement):
         data = line.split(',')
         # read data
         L_time.append(float(data[0]))
+        
+        L_disp_x.append(float(data[1]))
+        L_disp_y.append(float(data[2]))
+        L_disp_z.append(float(data[3]))
 
-        L_stress_xx_grain.append(float(data[14]))
-        L_stress_xy_grain.append(float(data[16]))
-        L_stress_xz_grain.append(float(data[18]))
-        L_stress_yy_grain.append(float(data[20]))
-        L_stress_yz_grain.append(float(data[22]))
-        L_stress_zz_grain.append(float(data[24]))
+        L_stress_xx_grain.append(float(data[17]))
+        L_stress_xy_grain.append(float(data[19]))
+        L_stress_xz_grain.append(float(data[21]))
+        L_stress_yy_grain.append(float(data[23]))
+        L_stress_yz_grain.append(float(data[25]))
+        L_stress_zz_grain.append(float(data[27]))
 
-        L_strain_xx_grain.append(float(data[2]))
-        L_strain_xy_grain.append(float(data[4]))
-        L_strain_xz_grain.append(float(data[6]))
-        L_strain_yy_grain.append(float(data[8]))
-        L_strain_yz_grain.append(float(data[10]))
-        L_strain_zz_grain.append(float(data[12]))
+        L_strain_xx_grain.append(float(data[5]))
+        L_strain_xy_grain.append(float(data[7]))
+        L_strain_xz_grain.append(float(data[9]))
+        L_strain_yy_grain.append(float(data[11]))
+        L_strain_yz_grain.append(float(data[13]))
+        L_strain_zz_grain.append(float(data[15]))
 
-        L_stress_xx_cement.append(float(data[13]))
-        L_stress_xy_cement.append(float(data[15]))
-        L_stress_xz_cement.append(float(data[17]))
-        L_stress_yy_cement.append(float(data[19]))
-        L_stress_yz_cement.append(float(data[21]))
-        L_stress_zz_cement.append(float(data[23]))
+        L_stress_xx_cement.append(float(data[16]))
+        L_stress_xy_cement.append(float(data[18]))
+        L_stress_xz_cement.append(float(data[20]))
+        L_stress_yy_cement.append(float(data[22]))
+        L_stress_yz_cement.append(float(data[24]))
+        L_stress_zz_cement.append(float(data[26]))
 
-        L_strain_xx_cement.append(float(data[1]))
-        L_strain_xy_cement.append(float(data[3]))
-        L_strain_xz_cement.append(float(data[5]))
-        L_strain_yy_cement.append(float(data[7]))
-        L_strain_yz_cement.append(float(data[9]))
-        L_strain_zz_cement.append(float(data[11]))
+        L_strain_xx_cement.append(float(data[4]))
+        L_strain_xy_cement.append(float(data[6]))
+        L_strain_xz_cement.append(float(data[8]))
+        L_strain_yy_cement.append(float(data[10]))
+        L_strain_yz_cement.append(float(data[12]))
+        L_strain_zz_cement.append(float(data[14]))
 
         # compute homogenization
         L_stress_xx.append((L_stress_xx_grain[-1]*s_grain + L_stress_xx_cement[-1]*s_cement)/(s_grain+s_cement))
@@ -464,7 +473,8 @@ def Read_FEM_csv(namefile, M_grain, M_cement):
         L_strain_yz.append((L_strain_yz_grain[-1]*s_grain + L_strain_yz_cement[-1]*s_cement)/(s_grain+s_cement))
         L_strain_zz.append((L_strain_zz_grain[-1]*s_grain + L_strain_zz_cement[-1]*s_cement)/(s_grain+s_cement))
 
-    return L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz, \
+    return L_disp_x, L_disp_y, L_disp_z,\
+           L_stress_xx, L_stress_xy, L_stress_xz, L_stress_yy, L_stress_yz, L_stress_zz, \
            L_strain_xx, L_strain_xy, L_strain_xz, L_strain_yy, L_strain_yz, L_strain_zz
 
 #-------------------------------------------------------------------------------

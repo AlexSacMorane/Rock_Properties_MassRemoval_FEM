@@ -255,6 +255,24 @@
     variable = strain_zz
     block = 2
   []
+  [disp_x_pp]
+    type = NormalBoundaryDisplacement
+    boundary = right
+    displacements = 'disp_x disp_y disp_z'
+    value_type = average
+  []
+  [disp_y_pp]
+    type = NormalBoundaryDisplacement
+    boundary = top
+    displacements = 'disp_x disp_y disp_z'
+    value_type = average
+  []
+  [disp_z_pp]
+    type = NormalBoundaryDisplacement
+    boundary = front
+    displacements = 'disp_x disp_y disp_z'
+    value_type = average
+  []
 []
 
 [Outputs]
@@ -263,12 +281,13 @@
     type = Console
     execute_on = 'nonlinear'
     max_rows = 3
-    show = 'strain_xx_gra_pp strain_xx_cem_pp strain_yy_gra_pp strain_yy_cem_pp strain_zz_gra_pp strain_zz_cem_pp 
+    show = 'disp_x_pp disp_y_pp disp_z_pp 
             stress_xx_gra_pp stress_xx_cem_pp stress_yy_gra_pp stress_yy_cem_pp stress_zz_gra_pp stress_zz_cem_pp'
   []
   [./csv]
     type = CSV
-    show = 'stress_xx_gra_pp stress_xy_gra_pp stress_xz_gra_pp stress_yy_gra_pp stress_yz_gra_pp stress_zz_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_xz_cem_pp stress_yy_cem_pp stress_yz_cem_pp stress_zz_cem_pp
+    show = 'disp_x_pp disp_y_pp disp_z_pp
+            stress_xx_gra_pp stress_xy_gra_pp stress_xz_gra_pp stress_yy_gra_pp stress_yz_gra_pp stress_zz_gra_pp stress_xx_cem_pp stress_xy_cem_pp stress_xz_cem_pp stress_yy_cem_pp stress_yz_cem_pp stress_zz_cem_pp
             strain_xx_gra_pp strain_xy_gra_pp strain_xz_gra_pp strain_yy_gra_pp strain_yz_gra_pp strain_zz_gra_pp strain_xx_cem_pp strain_xy_cem_pp strain_xz_cem_pp strain_yy_cem_pp strain_yz_cem_pp strain_zz_cem_pp'
   [../]
 []
