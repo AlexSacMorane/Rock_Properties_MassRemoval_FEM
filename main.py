@@ -313,6 +313,9 @@ n_ite_pf_max = 50
 dt_pf = 0.02
 n_proc = 4
 
+# visualization of the masks
+visualization = True
+
 # save
 dict_pf['f_mesh_pf'] = f_mesh_pf
 dict_pf['W_pf'] = W_pf
@@ -322,6 +325,53 @@ dict_pf['crit_res_pf'] = crit_res_pf
 dict_pf['n_ite_pf_max'] = n_ite_pf_max
 dict_pf['dt_pf'] = dt_pf
 dict_pf['n_proc'] = n_proc
+dict_pf['visualization'] = visualization
+
+#-------------------------------------------------------------------------------
+# Write masks (visualization)
+#-------------------------------------------------------------------------------
+
+if visualization:
+    file_to_write_cement = open('data/cement.txt','w')
+    file_to_write_grain = open('data/grain.txt','w')
+    # x
+    file_to_write_cement.write('AXIS X\n')
+    file_to_write_grain.write('AXIS X\n')
+    line = ''
+    for x in x_L:
+        line = line + str(x)+ ' '
+    line = line + '\n'
+    file_to_write_cement.write(line)
+    file_to_write_grain.write(line)
+    # y
+    file_to_write_cement.write('AXIS Y\n')
+    file_to_write_grain.write('AXIS Y\n')
+    line = ''
+    for y in y_L:
+        line = line + str(y)+ ' '
+    line = line + '\n'
+    file_to_write_cement.write(line)
+    file_to_write_grain.write(line)
+    # z
+    file_to_write_cement.write('AXIS Z\n')
+    file_to_write_grain.write('AXIS Z\n')
+    line = ''
+    for z in z_L:
+        line = line + str(z)+ ' '
+    line = line + '\n'
+    file_to_write_cement.write(line)
+    file_to_write_grain.write(line)
+    # data
+    file_to_write_cement.write('DATA\n')
+    file_to_write_grain.write('DATA\n')
+    for i_z in range(len(z_L)):
+        for i_y in range(len(y_L)):
+            for i_x in range(len(x_L)):
+                file_to_write_cement.write(str(data_cement[i_x, i_y, i_z])+'\n')
+                file_to_write_grain.write(str(data_grain[i_x, i_y, i_z])+'\n')
+    # close
+    file_to_write_cement.close()
+    file_to_write_grain.close()
 
 #-------------------------------------------------------------------------------
 # Compute ed
@@ -401,18 +451,66 @@ for line in lines :
     if j == 11:
         line = line[:-1] + ' ' + str(min(z_L)) + '\n'
     if j == 12:
-        line = line[:-1] + ' ' + str(max(z_L)) + '\n'
-    if j == 69:
+        line = line[:-1] + ' ' + str(max(z_L)) + '\n'     
+    if j == 26:
+        if visualization:
+            line =   '  [./cement]\n'+\
+                     '    order = FIRST\n'+\
+                     '    family = LAGRANGE\n'+\
+                     '    outputs = exodus\n'+\
+                     '    [./InitialCondition]\n'+\
+                     '      type = FunctionIC\n'+\
+                     '      function = cement_txt\n'+\
+                     '    [../]\n'+\
+                     '  [../]\n'+\
+                     '  [./grain]\n'+\
+                     '    order = FIRST\n'+\
+                     '    family = LAGRANGE\n'+\
+                     '    outputs = exodus\n'+\
+                     '    [./InitialCondition]\n'+\
+                     '      type = FunctionIC\n'+\
+                     '      function = grain_txt\n'+\
+                     '    [../]\n'+\
+                     '  [../]\n'          
+        else:
+            line = '' # not write this line     
+    if j == 47:
+        if visualization:
+            line =   '  # order parameter cement\n'+\
+                     '  [./dcementdt]\n'+\
+                     '    type = TimeDerivative\n'+\
+                     '    variable = cement\n'+\
+                     '  [../]\n'+\
+                     '  # order parameter grain\n'+\
+                     '  [./dgraindt]\n'+\
+                     '    type = TimeDerivative\n'+\
+                     '    variable = grain\n'+\
+                     '  [../]\n'
+        else:
+            line = '' # not write this line
+    if j == 71:
         line = line[:-1] + " '" + str(1) + ' ' + str(kappa_pf) + "'\n"
-    if j == 86:
+    if j == 88:
         line = line[:-1] + " '" + str(W_pf) + "'\n"
-    if j == 124 or j == 125 or j == 128 or j == 129:
+    if j == 105:
+        if visualization:
+            line =   '  [cement_txt]\n'+\
+                     '    type = PiecewiseMultilinear\n'+\
+                     '    data_file = data/cement.txt\n'+\
+                     '  [../]\n'+\
+                     '  [grain_txt]\n'+\
+                     '    type = PiecewiseMultilinear\n'+\
+                     '    data_file = data/grain.txt\n'+\
+                     '  [../]\n'
+        else:
+            line = '' # not write this line
+    if j == 127 or j == 128 or j == 131 or j == 132:
         line = line[:-1] + " " + str(crit_res_pf) + "\n"
-    if j == 132:
+    if j == 135:
         line = line[:-1] + " " + str(10*n_ite_pf_max) + "\n"
-    if j == 133:
+    if j == 136:
         line = line[:-1] + " " + str(dt_pf*n_ite_pf_max) + "\n"
-    if j == 137:
+    if j == 140:
         line = line[:-1] + " " + str(dt_pf) + "\n"
     file_to_write.write(line)
 

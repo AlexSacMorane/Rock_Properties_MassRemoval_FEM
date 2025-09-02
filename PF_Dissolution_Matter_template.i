@@ -23,6 +23,7 @@
       function = matter_txt
     [../]
   [../]
+
 []
 
 [Kernels]
@@ -43,6 +44,7 @@
     mob_name = L_matter
     kappa_name = kappa_matter
   [../]
+
 []
 
 [BCs]
@@ -100,6 +102,7 @@
     type = PiecewiseMultilinear
     data_file = data/ed.txt
   []
+  
 []
 
 [Preconditioning]
