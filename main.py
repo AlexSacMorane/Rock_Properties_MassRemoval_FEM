@@ -95,7 +95,7 @@ dict_loading = {}
 print('Extract data from CTscans')
 
 # determine the size (> 150 for REV)
-size = 20
+size = 75
 
 # Image are 1341 x 1200 x 1200
 # definition of the extraction zone
@@ -309,12 +309,12 @@ kappa_pf = W_pf*w_int_pf*w_int_pf/9.86
 
 # resolution
 crit_res_pf = 1e-3
-n_ite_pf_max = 50
+n_ite_pf_max = 200
 dt_pf = 0.02
 n_proc = 4
 
 # visualization of the masks
-visualization = True
+visualization = False
 
 # save
 dict_pf['f_mesh_pf'] = f_mesh_pf
@@ -758,10 +758,14 @@ for i_vol_cement in range(len(L_vol_cement)):
     L_mass_removal.append(L_vol_cement[0]-L_vol_cement[i_vol_cement])
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2,ncols=2,figsize=(16,9))
-ax1.plot(L_mass_removal, L_young)
-ax2.plot(L_mass_removal, L_poisson)
-ax3.plot(L_mass_removal, L_shear)
-ax4.plot(L_mass_removal, L_bulk)
+if L_young != []:
+    ax1.plot(L_mass_removal, L_young)
+if L_poisson != []:
+    ax2.plot(L_mass_removal, L_poisson)
+if L_shear != []:
+    ax3.plot(L_mass_removal, L_shear)
+if L_bulk != []:
+    ax4.plot(L_mass_removal, L_bulk)
 ax1.set_ylabel('Young modulus (-)')
 ax2.set_ylabel('Poisson ratio (-)')
 ax3.set_ylabel('Shear modulus (-)')
@@ -786,6 +790,7 @@ with open('dict/dict_loading', 'wb') as handle:
 shutil.rmtree('e')
 shutil.rmtree('i')
 shutil.rmtree('data')
+shutil.rmtree('vtk')
 shutil.rmtree('csv')
 
 # user print
