@@ -128,7 +128,7 @@
   petsc_options_iname = '-pc_type'
   petsc_options_value = 'lu'
   
-  end_time = 1
+  end_time = 
   dt = 
 []
 

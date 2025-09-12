@@ -229,7 +229,7 @@ def Write_triaxial_i(x_L, y_L, z_L, triaxial_strain, young_pore, poisson_pore, y
             line = line[:-1] + ' ' + str(poisson_cement) + '\n'
         if j == 123 or j == 125 or j == 126:
             line = line[:-1] + ' ' + str(crit_res_fem) + '\n'
-        if j == 132:
+        if j == 131 or j == 132:
             line = line[:-1] + ' ' + str(dt_fem) + '\n'
         file_to_write.write(line)
     file_to_write.close()
@@ -352,7 +352,7 @@ def Write_isotropic_i(x_L, y_L, z_L, isotropic_strain, young_pore, poisson_pore,
             line = line[:-1] + ' ' + str(poisson_cement) + '\n'
         if j == 123 or j == 125 or j == 126:
             line = line[:-1] + ' ' + str(crit_res_fem) + '\n'
-        if j == 132:
+        if j == 131 or j == 132:
             line = line[:-1] + ' ' + str(dt_fem) + '\n'
         file_to_write.write(line)
     file_to_write.close()
