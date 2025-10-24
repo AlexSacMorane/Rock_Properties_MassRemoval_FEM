@@ -10,6 +10,7 @@ FEM_Loading_Shearing.i
 FEM_Loading_Triaxial.i
 *.avi
 *.mp4
+*.data
 
 # Folders with images
 Tengattini2023
