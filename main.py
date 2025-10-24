@@ -645,6 +645,12 @@ for iteration in range(last_j+1):
             # save
             L_vol_cement.append(np.sum(M_cement))
 
+            # create dictionnary
+            dict_fft = {'M_microstructure': M_grain + 2*M_cement}
+            with open('dict/dict_fft_'+str(int((L_vol_cement[0]-L_vol_cement[-1])/L_vol_cement[0]*100), 'wb')) as handle:
+                pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
             # Prepare the MOOSE simulation
             create_folder('data')
             create_folder('i')
