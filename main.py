@@ -95,7 +95,7 @@ dict_loading = {}
 print('Extract data from CTscans')
 
 # determine the size (> 150 for REV)
-size = 75
+size = 150
 
 # Image are 1341 x 1200 x 1200
 # definition of the extraction zone
@@ -311,7 +311,7 @@ kappa_pf = W_pf*w_int_pf*w_int_pf/9.86
 crit_res_pf = 1e-3
 n_ite_pf_max = 200
 dt_pf = 0.02
-n_proc = 4
+n_proc = 6
 
 # visualization of the masks
 visualization = False
@@ -583,7 +583,7 @@ n_proc = n_proc
 
 # plan the loadings
 # compression, shearing, triaxial, isotropic
-loading = ['triaxial', 'isotropic']
+loading = []
 
 # define compression
 if 'compression' in loading:
@@ -599,7 +599,7 @@ if 'isotropic' in loading:
     dict_loading['isotropic_strain'] = -0.1/3
 
 # consider the criteria on the maximum number of iterations for pp
-max_ite = 10
+max_ite = 30
 if last_j > max_ite:
     f_pp = last_j/max_ite
 else :
